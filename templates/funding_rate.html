@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block javascript %}
+<script type="text/javascript" src="static/jquery/jquery.js"></script>
+<link href="static/bootstrap/datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
+<script type="text/javascript" src="static/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="static/bootstrap/datetimepicker/js/bootstrap-datetimepicker.js" charset="UTF-8"></script>
+<script type="text/javascript" src="static/bootstrap/datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
+<link rel="stylesheet" type="text/css" href="static/datatables/datatables.min.css"/>
+<script type="text/javascript" src="static/datatables/datatables.min.js"></script>
+<script type="text/javascript" src="static/echarts/echarts.min.js"></script>
+<script type="text/javascript" src="static/js/funding_rate.js"></script>
+<script type="text/javascript" language="javascript" class="init">
+    $(document).ready(function(){
+         init();
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<br>
+<p class="text-center font-weight-bold">Binance FundingRate</p>
+<br>
+<br>
+<div class="row">
+        <label class="control-label">开始日期</label>
+        <div class="input-group date col-md-2" id="form_bn_fr_start_date">
+            <input class="form-control" size="10" type="text" value="" id="bn_fr_start_date" readonly>
+            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+        </div>
+
+        <label class="control-label">结束日期</label>
+        <div class="input-group date col-md-2" id="form_bn_fr_end_date">
+            <input class="form-control" size="10" type="text" value="" id="bn_fr_end_date" readonly>
+            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+        </div>
+
+    <button onclick="displayBinanceFundingRate()" class="btn btn-outline-secondary">显示</button>
+</div>
+
+<br>
+<br>
+<table id="bn_funding_rate">
+    <thead>
+        <tr>
+            <th>合约名称</th>
+            <th>资金费率</th>
+            <th>费率时间</th>
+            <th>数据更新时间</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<br>
+<br>
+<p class="text-center font-weight-bold">Gateio FundingRate</p>
+<br>
+<br>
+<div class="row">
+    <label class="control-label">开始日期</label>
+    <div class="input-group date col-md-2" id="form_ga_fr_start_date">
+        <input class="form-control" size="10" type="text" value="" id="ga_fr_start_date" readonly>
+        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+    </div>
+
+    <label class="control-label">结束日期</label>
+    <div class="input-group date col-md-2" id="form_ga_fr_end_date">
+        <input class="form-control" size="10" type="text" value="" id="ga_fr_end_date" readonly>
+        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+    </div>
+
+    <button onclick="displayGateioFundingRate()" class="btn btn-outline-secondary">显示</button>
+</div>
+
+<br>
+<br>
+<table id="ga_funding_rate">
+<thead>
+    <tr>
+        <th>合约名称</th>
+        <th>资金费率</th>
+        <th>费率时间</th>
+        <th>数据更新时间</th>
+    </tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+
+<br>
+<br>
+<p class="text-center font-weight-bold">Bybit FundingRate</p>
+<br>
+<br>
+<div class="row">
+    <label class="control-label">开始日期</label>
+    <div class="input-group date col-md-2" id="form_by_fr_start_date">
+        <input class="form-control" size="10" type="text" value="" id="by_fr_start_date" readonly>
+        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+    </div>
+
+    <label class="control-label">结束日期</label>
+    <div class="input-group date col-md-2" id="form_by_fr_end_date">
+        <input class="form-control" size="10" type="text" value="" id="by_fr_end_date" readonly>
+        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+    </div>
+
+    <button onclick="displayBybitFundingRate()" class="btn btn-outline-secondary">显示</button>
+</div>
+
+<br>
+<br>
+<table id="by_funding_rate">
+<thead>
+    <tr>
+        <th>合约名称</th>
+        <th>资金费率</th>
+        <th>费率时间</th>
+        <th>数据更新时间</th>
+    </tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+
+<br>
+<br>
+<p class="text-center font-weight-bold">Okx FundingRate</p>
+<br>
+<br>
+<div class="row">
+    <label class="control-label">开始日期</label>
+    <div class="input-group date col-md-2" id="form_ok_fr_start_date">
+        <input class="form-control" size="10" type="text" value="" id="ok_fr_start_date" readonly>
+        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+    </div>
+
+    <label class="control-label">结束日期</label>
+    <div class="input-group date col-md-2" id="form_ok_fr_end_date">
+        <input class="form-control" size="10" type="text" value="" id="ok_fr_end_date" readonly>
+        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+    </div>
+
+    <button onclick="displayOkxFundingRate()" class="btn btn-outline-secondary">显示</button>
+</div>
+
+<br>
+<br>
+<table id="ok_funding_rate">
+<thead>
+    <tr>
+        <th>合约名称</th>
+        <th>资金费率</th>
+        <th>费率时间</th>
+        <th>数据更新时间</th>
+    </tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+
+{% endblock %}

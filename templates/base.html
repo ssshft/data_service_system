@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {% block head %}
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+        <meta name="generator" content="Hugo 0.80.0">
+        <title>DataServiceSystem</title>
+        {% endblock %}
+
+        {% block css %}
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'bootstrap/css/bootstrap.min.css') }}"></link>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'css/dashboard.css') }}"></link>
+        {% endblock %}
+
+        {% block javascript %}
+        {% endblock %}
+    </head>
+
+    <body>
+        {% block navbar %}
+        <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+            <a class="navbar-brand col-md-2 col-lg-2 mr-0 px-3">DataServiceSystem</a>
+        </nav>
+        {% endblock %}
+
+        {% block leftbar %}
+        <div class="container-fluid">
+            <div class="row">
+                <nav id="sidebarMenu" class="col-md-2 col-lg-2 d-md-block bg-light sidebar collapse">
+                    <div class="sidebar-sticky pt-3">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/max_loan">
+                                    <span data-feather="file">最大可借</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="/funding_rate">
+                                    <span data-feather="file">资金费率</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="/contract_info">
+                                    <span data-feather="file">合约信息</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="/kline">
+                                    <span data-feather="file">K线</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="/contract_open_interest">
+                                    <span data-feather="file">持仓量</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="/account_monitor">
+                                    <span data-feather="file">账户监控</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </nav>
+
+                <main role="main" class="col-md-10 ml-sm-auto col-lg-10 px-md-4">
+                    {% block content %}
+                    {% endblock %}
+                </main>
+
+            </div>
+        </div>
+        {% endblock %}
+
+        {% block scripts %}
+        {% endblock %}
+    </body>
+</html>

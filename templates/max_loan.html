@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block javascript %}
+<script type="text/javascript" src="static/jquery/jquery.js"></script>
+<link rel="stylesheet" type="text/css" href="static/datatables/datatables.min.css"/>
+<script type="text/javascript" src="static/datatables/datatables.min.js"></script>
+<script type="text/javascript" src="static/echarts/echarts.min.js"></script>
+<script type="text/javascript" src="static/js/max_loan.js"></script>
+<script type="text/javascript" language="javascript" class="init">
+    $(document).ready(function() {
+        init();
+    });
+</script>
+
+{% endblock %}
+
+{% block content %}
+<br>
+<p class="text-center font-weight-bold">Gateio 市场最大可借</p>
+<table id="gateio_market_max_loan">
+    <thead>
+        <tr>
+            <th>币种</th>
+            <th>最小借贷利率(小时利率)</th>
+            <th>币种精度</th>
+            <th>币种价值折扣</th>
+            <th>币种最小的借入数量(币)</th>
+            <th>用户最大允许的借入数额(USDT)</th>
+            <th>币种允许借入的最大数额(USDT)</th>
+            <th>币种兑换USDT的价格</th>
+            <th>币种状态</th>
+            <th>数据更新时间</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<br>
+<p class="text-center font-weight-bold">Gateio 账户最大可借</p>
+
+<label class="control-label">账户名称&nbsp;</label>
+<select id="gateio_account_name">
+    <option value="gateio_test">gateio_test</option>
+</select>&nbsp;
+<button onclick="displayGateioAccount()" class="btn btn-outline-secondary">显示</button>
+
+<table id="gateio_account_max_loan">
+    <thead>
+        <tr>
+            <th>账户名称</th>
+            <th>币种</th>
+            <th>最大可借</th>
+            <th>数据更新时间</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+<br>
+
+<br>
+<p class="text-center font-weight-bold">Okx 账户最大可借</p>
+
+<label class="control-label">账户名称&nbsp;</label>
+<select id="okx_account_name">
+    <option value="aalhok2340">aalhok2340</option>
+    <option value="okx_real_test">okx_real_test</option>
+</select>&nbsp;
+<button onclick="displayOkxAccount()" class="btn btn-outline-secondary">显示</button>
+
+<table id="okx_account_max_loan">
+    <thead>
+        <tr>
+            <th>账户名称</th>
+            <th>产品 ID</th>
+            <th>仓位类型</th>
+            <th>保证金币种</th>
+            <th>最大可借</th>
+            <th>币种</th>
+            <th>订单方向</th>
+            <th>数据更新时间</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+{% endblock %}

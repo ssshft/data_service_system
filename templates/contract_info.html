@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block javascript %}
+<script type="text/javascript" src="static/jquery/jquery.js"></script>
+<link rel="stylesheet" type="text/css" href="static/datatables/datatables.min.css"/>
+<script type="text/javascript" src="static/datatables/datatables.min.js"></script>
+<script type="text/javascript" src="static/echarts/echarts.min.js"></script>
+<script type="text/javascript" src="static/js/contract_info.js"></script>
+<script type="text/javascript" language="javascript" class="init">
+    $(document).ready(function() {
+        init();
+    });
+</script>
+
+{% endblock %}
+
+{% block content %}
+<br>
+<br>
+<p class="text-center font-weight-bold">Binance 合约信息</p>
+<table id="binance_contract_info">
+    <thead>
+        <tr>
+            <th>合约名称</th>
+            <th>资金费率间隔</th>
+            <th>数据更新时间</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<br>
+<br>
+<p class="text-center font-weight-bold">Gateio 合约信息</p>
+<table id="gateio_contract_info">
+    <thead>
+        <tr>
+            <th>合约名称</th>
+            <th>资金费率间隔</th>
+            <th>数据更新时间</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<br>
+<br>
+<p class="text-center font-weight-bold">Bybit 合约信息</p>
+<table id="bybit_contract_info">
+    <thead>
+        <tr>
+            <th>合约名称</th>
+            <th>资金费率间隔</th>
+            <th>数据更新时间</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<br>
+<br>
+<p class="text-center font-weight-bold">Okx 合约信息</p>
+<table id="okx_contract_info">
+    <thead>
+        <tr>
+            <th>合约名称</th>
+            <th>资金费率间隔</th>
+            <th>数据更新时间</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+
+{% endblock %}

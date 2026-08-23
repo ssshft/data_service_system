@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block javascript %}
+<script type="text/javascript" src="static/jquery/jquery.js"></script>
+<link rel="stylesheet" type="text/css" href="static/datatables/datatables.min.css"/>
+<script type="text/javascript" src="static/datatables/datatables.min.js"></script>
+<script type="text/javascript" src="static/socketio/socket.io.min.js"></script>
+<script type="text/javascript" src="static/js/utility.js"></script>
+<script type="text/javascript" language="javascript" class="init">
+    $(document).ready(function() {
+        InitTableConfig();
+        var namespace = '/account_info';
+        var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
+        socket.on('account_info_view', function (res) {
+            var ty = res.text['type']
+            if (ty == 4) { // account view
+                var item = res.text['data'];
+                var accounts = item.list;
+                var accountJson = [];
+                for (var k in accounts) {
+                    account = accounts[k]
+                    var accountId = account.AccountID;
+                    var accountName = account.AccountName;
+                    var baseAsset = account.BaseAsset;
+                    var leverage = account.Leverage.toFixed(2);
+                    var nowNetValue = account.NowNetValue.toFixed(2);
+                    var riskExposure = account.RiskExposure.toFixed(2);
+                    var time = account.Time;
+                    var detailRef = '<a href="/account_detail/' + accountId + '">Detail</a>';
+                    var data = {'AccountID': accountId, 'AccountName': accountName, 'BaseAsset': baseAsset, 'Leverage': leverage, 'NowNetValue': nowNetValue, 'RiskExposure': riskExposure, 'Time': time, 'DetailRef': detailRef};
+                    accountJson.push(data);
+                    RefreshTable('#account_data', accountJson);
+                }
+            }      
+
+        });
+    });
+
+function InitTableConfig() {
+    $('#account_data').DataTable({
+        "ordering": false,
+        "info": false,
+        "searching": false,
+        "paging": false,
+        "columns": [
+            {data: 'AccountID', title: 'AccountID'},
+            {data: 'AccountName', title: 'AccountName'},
+            {data: 'BaseAsset', title: 'BaseAsset'},
+            {data: 'Leverage', title: 'Leverage'},
+            {data: 'NowNetValue', title: 'NowNetValue'},
+            {data: 'RiskExposure', title: 'RiskExposure'},
+            {data: 'Time', title: 'Time'},
+            {data: 'DetailRef', title: 'Detail'}
+        ]
+    });
+}
+
+
+</script>
+{% endblock %}
+
+{% block content %}
+<br>
+<p class="text-center font-weight-bold">账户信息</p>
+<br>
+<table id="account_data"></table>
+
+{% endblock %}

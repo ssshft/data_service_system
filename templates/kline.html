@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block javascript %}
+<script type="text/javascript" src="static/jquery/jquery.js"></script>
+<link href="static/bootstrap/datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
+<script type="text/javascript" src="static/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="static/bootstrap/datetimepicker/js/bootstrap-datetimepicker.js" charset="UTF-8"></script>
+<script type="text/javascript" src="static/bootstrap/datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
+<link rel="stylesheet" type="text/css" href="static/datatables/datatables.min.css"/>
+<script type="text/javascript" src="static/datatables/datatables.min.js"></script>
+<script type="text/javascript" src="static/echarts/echarts.min.js"></script>
+<script type="text/javascript" src="static/js/kline.js"></script>
+<script type="text/javascript" language="javascript" class="init">
+    $(document).ready(function() {
+        init();
+    });
+</script>
+
+{% endblock %}
+
+{% block content %}
+<br>
+<br>
+<p class="text-center font-weight-bold">Binance Kline</p>
+<br>
+<br>
+<div class="row">
+    <label class="control-label">开始日期</label>
+    <div class="input-group date col-md-2" id="form_bn_kline_start_date">
+        <input class="form-control" size="10" type="text" value="" id="bn_kline_start_date" readonly>
+        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+    </div>
+
+    <label class="control-label">结束日期</label>
+    <div class="input-group date col-md-2" id="form_bn_kline_end_date">
+        <input class="form-control" size="10" type="text" value="" id="bn_kline_end_date" readonly>
+        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+    </div>
+
+    <button onclick="displayBinanceKline()" class="btn btn-outline-secondary">显示</button>
+</div>
+<br>
+<br>
+<table id="binance_kline">
+    <thead>
+        <tr>
+            <th>名称</th>
+            <th>开盘价</th>
+            <th>最高价</th>
+            <th>最低价</th>
+            <th>收盘价</th>
+            <th>成交量</th>
+            <th>成交额</th>
+            <th>时间</th>
+            <th>数据更新时间</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<br>
+<br>
+<p class="text-center font-weight-bold">Gateio Kline</p>
+<br>
+<br>
+<div class="row">
+    <label class="control-label">开始日期</label>
+    <div class="input-group date col-md-2" id="form_ga_kline_start_date">
+        <input class="form-control" size="10" type="text" value="" id="ga_kline_start_date" readonly>
+        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+    </div>
+
+    <label class="control-label">结束日期</label>
+    <div class="input-group date col-md-2" id="form_ga_kline_end_date">
+        <input class="form-control" size="10" type="text" value="" id="ga_kline_end_date" readonly>
+        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+    </div>
+
+    <button onclick="displayGateioKline()" class="btn btn-outline-secondary">显示</button>
+</div>
+<br>
+<br>
+<table id="gateio_kline">
+    <thead>
+        <tr>
+            <th>名称</th>
+            <th>开盘价</th>
+            <th>最高价</th>
+            <th>最低价</th>
+            <th>收盘价</th>
+            <th>成交量</th>
+            <th>成交额</th>
+            <th>时间</th>
+            <th>数据更新时间</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<br>
+<br>
+<p class="text-center font-weight-bold">Bybit Kline</p>
+<br>
+<br>
+<div class="row">
+    <label class="control-label">开始日期</label>
+    <div class="input-group date col-md-2" id="form_by_kline_start_date">
+        <input class="form-control" size="10" type="text" value="" id="by_kline_start_date" readonly>
+        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+    </div>
+
+    <label class="control-label">结束日期</label>
+    <div class="input-group date col-md-2" id="form_by_kline_end_date">
+        <input class="form-control" size="10" type="text" value="" id="by_kline_end_date" readonly>
+        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+    </div>
+
+    <button onclick="displayBybitKline()" class="btn btn-outline-secondary">显示</button>
+</div>
+<br>
+<br>
+<table id="bybit_kline">
+    <thead>
+        <tr>
+            <th>名称</th>
+            <th>开盘价</th>
+            <th>最高价</th>
+            <th>最低价</th>
+            <th>收盘价</th>
+            <th>成交量</th>
+            <th>成交额</th>
+            <th>时间</th>
+            <th>数据更新时间</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+
+{% endblock %}

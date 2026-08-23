@@ -1,0 +1,611 @@
+{% extends "base.html" %}
+{% block javascript %}
+
+<script type="text/javascript" language="javascript" src="{{ url_for('static', filename = 'jquery/jquery.js') }}"></script>
+<script type="text/javascript" language="javascript" src="{{ url_for('static', filename = 'bootstrap/js/bootstrap.min.js') }}"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'bootstrap/css/bootstrap.min.css') }}"></link>
+<script type="text/javascript" language="javascript" src="{{ url_for('static', filename = 'datatables/datatables.min.js') }}"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'datatables/datatables.min.css') }}"></link>
+<script type="text/javascript" language="javascript" src="{{ url_for('static', filename = 'socketio/socket.io.min.js') }}"></script>
+<script type="text/javascript" language="javascript" src="{{ url_for('static', filename = 'js/utility.js') }}"></script>
+<script type="text/javascript" language="javascript" class="init">
+    $(document).ready(function() {
+        InitTableConfig();
+        var namespace = '/account_info';
+        var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
+        socket.on('account_info_detail', function (res) {
+            var ty = res.text['type']
+            if (ty == 1) { // account detail
+                var accountId = Number($("#accountId").val());
+                var item = res.text['data'];
+                var accounts = item.list;
+                for (var k in accounts) {
+                    account = accounts[k];
+                    console.log(accountId);
+                    console.log(account);
+                    var accId = Number(account.customer_id);
+                    if (accId === accountId) {
+                        var cFutureAssetChecked = account.CFutureAssetChecked;
+                        if (JSON.stringify(cFutureAssetChecked) != '{}') {
+
+                        }
+
+                        var cFuturePositionChecked = account.CFuturePositionChecked;
+                        if (JSON.stringify(cFuturePositionChecked) != '{}') {
+
+                        }
+                        
+                        var deliveryAssetChecked = account.DeliveryAssetChecked;
+                        if (JSON.stringify(deliveryAssetChecked) != '{}') {
+
+                        }
+                        
+                        var deliveryPositionChecked = account.DeliveryPositionChecked;
+                        if (JSON.stringify(deliveryPositionChecked) != '{}') {
+
+                        }
+
+                        var exposureFormChecked = account.ExposureFormChecked;
+                        if (JSON.stringify(exposureFormChecked) != '{}') {
+                            var exposureFormJson = [];
+                            for (var exposureK in exposureFormChecked) {
+                                exposureItem = exposureFormChecked[exposureK];
+                                var symbol = exposureK;
+                                var deltaAmount = exposureItem.DeltaAmount.split('|')[0];
+                                var deltaValue = exposureItem.DeltaValue.split('|')[0];
+                                var exposureAmount = exposureItem.ExposureAmount.split('|')[0];
+                                var exposureValue = exposureItem.ExposureValue.split('|')[0];
+                                var initialAmount = exposureItem.InitialAmount.split('|')[0];
+                                var initialValue = exposureItem.InitialValue.split('|')[0];
+                                var data = {'Symbol': symbol, 'DeltaAmount': deltaAmount, 'DeltaValue': deltaValue, 'ExposureAmount': exposureAmount, 'ExposureValue': exposureValue, 'InitialAmount': initialAmount, 'InitialValue': initialValue};
+                                exposureFormJson.push(data);
+                                RefreshTable('#exposure_form', exposureFormJson);
+                            }
+                        }
+
+                        var mainFormChecked = account.MainFormChecked;
+                        if (JSON.stringify(mainFormChecked) != '{}') {
+                            var mainFormJson = [];
+                            var productName = '';
+                            var accountId = '';
+                            var strategyId = '';
+                            var traderId = '';
+                            var baseAsset = '';
+                            var time = '';
+                            var updateTimeD = '';
+                            var updateTimeS = '';
+                            var netValueD = '';
+                            var netValueS = '';
+                            var netValueGrowthRateD = '';
+                            var netValueGrowthRateS = '';
+                            var maxValueToLoanRatioD = '';
+                            var maxValueToLoanRatioS = '';
+                            var maxRealLeverageD = '';
+                            var maxRealLeverageS = '';
+                            var riskExposureD = '';
+                            var riskExposureS = '';
+                            var underwayOrderValueD = '';
+                            var underwayOrderValueS = '';
+                            var verifyRisk = '';
+                            var utilization = '';
+                            // console.log(mainFormChecked);
+                            for (var mainK in mainFormChecked) {
+                                mainItem = mainFormChecked[mainK];
+                                var itemKey = mainItem.key;
+                                var itemValue = mainItem.value;
+                                if (itemKey == 'ProductName') {
+                                    productName = itemValue;
+                                } else if (itemKey == 'AccountID') {
+                                    accountId = itemValue;
+                                } else if (itemKey == 'StrategyID') {
+                                    strategyId = itemValue;
+                                } else if (itemKey == 'TraderID') {
+                                    traderId = itemValue;
+                                } else if (itemKey == 'BaseAsset') {
+                                    baseAsset = itemValue;
+                                } else if (itemKey == 'Time') {
+                                    time = itemValue;
+                                } else if (itemKey == 'UpdateTime_D') {
+                                    updateTimeD = itemValue;
+                                } else if (itemKey == 'UpdateTime_S') {
+                                    updateTimeS = itemValue;
+                                } else if (itemKey == 'NetValue_D') {
+                                    netValueD = itemValue;
+                                } else if (itemKey == 'NetValue_S') {
+                                    netValueS = itemValue;
+                                } else if (itemKey == 'NetValueGrowthRate_D') {
+                                    netValueGrowthRateD = itemValue;
+                                } else if (itemKey == 'NetValueGrowthRate_S') {
+                                    netValueGrowthRateS = itemValue;
+                                } else if (itemKey == 'MaxValueToLoanRatio_D') {
+                                    maxValueToLoanRatioD = itemValue;
+                                } else if (itemKey == 'MaxValueToLoanRatio_S') {
+                                    maxValueToLoanRatioS = itemValue;
+                                } else if (itemKey == 'MaxRealLeverage_D') {
+                                    maxRealLeverageD = itemValue;
+                                } else if (itemKey == 'MaxRealLeverage_S') {
+                                    maxRealLeverageS = itemValue;
+                                } else if (itemKey == 'RiskExposure_D') {
+                                    riskExposureD = itemValue;
+                                } else if (itemKey == 'RiskExposure_S') {
+                                    riskExposureS = itemValue;
+                                } else if (itemKey == 'UnderwayOrderValue_D') {
+                                    underwayOrderValueD = itemValue;
+                                } else if (itemKey == 'UnderwayOrderValue_S') {
+                                    underwayOrderValueS = itemValue;
+                                } else if (itemKey == 'VerifyRisk') {
+                                    verifyRisk = itemValue;
+                                } else if (itemKey == 'Utilization') {
+                                    utilization = itemValue;
+                                }
+                            }
+                            
+                            var data1 = {'main_form_col1': 'ProductName', 'main_form_val1': productName, 'main_form_col2': 'AccountID', 'main_form_val2': accountId};
+                            var data2 = {'main_form_col1': 'StrategyID', 'main_form_val1': strategyId, 'main_form_col2': 'TraderID', 'main_form_val2': traderId};
+                            var data3 = {'main_form_col1': 'BaseAsset', 'main_form_val1': baseAsset, 'main_form_col2': 'Time', 'main_form_val2': time};
+                            var data4 = {'main_form_col1': 'UpdateTime_D', 'main_form_val1': updateTimeD, 'main_form_col2': 'UpdateTime_S', 'main_form_val2': updateTimeS};
+                            var data5 = {'main_form_col1': 'NetValue_D', 'main_form_val1': netValueD, 'main_form_col2': 'NetValue_S', 'main_form_val2': netValueS};
+                            var data6 = {'main_form_col1': 'NetValueGrowthRate_D', 'main_form_val1': netValueGrowthRateD, 'main_form_col2': 'NetValueGrowthRate_S', 'main_form_val2': netValueGrowthRateS};
+                            var data7 = {'main_form_col1': 'MaxValueToLoanRatio_D', 'main_form_val1': maxValueToLoanRatioD, 'main_form_col2': 'MaxValueToLoanRatio_S', 'main_form_val2': maxValueToLoanRatioS};
+                            var data8 = {'main_form_col1': 'MaxRealLeverage_D', 'main_form_val1': maxRealLeverageD, 'main_form_col2': 'MaxRealLeverage_S', 'main_form_val2': maxRealLeverageS};
+                            var data9 = {'main_form_col1': 'RiskExposure_D', 'main_form_val1': riskExposureD, 'main_form_col2': 'RiskExposure_S', 'main_form_val2': riskExposureS};
+                            var data10 = {'main_form_col1': 'UnderwayOrderValue_D', 'main_form_val1': underwayOrderValueD, 'main_form_col2': 'UnderwayOrderValue_S', 'main_form_val2': underwayOrderValueS};
+                            var data11 = {'main_form_col1': 'VerifyRisk', 'main_form_val1': verifyRisk, 'main_form_col2': 'Utilization', 'main_form_val2': utilization};
+
+                            mainFormJson.push(data1);
+                            mainFormJson.push(data2);
+                            mainFormJson.push(data3);
+                            mainFormJson.push(data4);
+                            mainFormJson.push(data5);
+                            mainFormJson.push(data6);
+                            mainFormJson.push(data7);
+                            mainFormJson.push(data8);
+                            mainFormJson.push(data9);
+                            mainFormJson.push(data10);
+                            mainFormJson.push(data11);
+                            RefreshTable('#main_form', mainFormJson);
+                        }
+
+                        var perpetualAssetChecked = account.PerpetualAssetChecked;
+                        if (JSON.stringify(perpetualAssetChecked) != '{}') {
+                            var perpetualAssetJson = [];
+                            for (var assetK in perpetualAssetChecked) {
+                                perpetualAssetItem = perpetualAssetChecked[assetK];
+                                var asset = perpetualAssetItem.asset.split('|')[0];
+                                var availableAmount = perpetualAssetItem.availableAmount.split('|')[0];
+                                var floatAmount_d = perpetualAssetItem.floatAmount_d.split('|')[0];
+                                var floatAmount_s = perpetualAssetItem.floatAmount_s.split('|')[0];
+                                var frozenAmount_d = perpetualAssetItem.frozenAmount_d.split('|')[0];
+                                var frozenAmount_s = perpetualAssetItem.frozenAmount_s.split('|')[0];
+                                var frozenMarginAmount_d = perpetualAssetItem.frozenMarginAmount_d.split('|')[0];
+                                var frozenMarginAmount_s = perpetualAssetItem.frozenMarginAmount_s.split('|')[0];
+                                var initialAmount = perpetualAssetItem.initialAmount.split('|')[0];
+                                var marginAmount_d = perpetualAssetItem.marginAmount_d.split('|')[0];
+                                var marginAmount_s = perpetualAssetItem.marginAmount_s.split('|')[0];
+                                var netAmount = perpetualAssetItem.netAmount.split('|')[0];
+                                var positionValue = perpetualAssetItem.positionValue.split('|')[0];
+                                var realLeverageRatio = perpetualAssetItem.realLeverageRatio.split('|')[0];
+                                var totalAmount_d = perpetualAssetItem.totalAmount_d.split('|')[0];
+                                var totalAmount_s = perpetualAssetItem.totalAmount_s.split('|')[0];
+                                var transferAmount = perpetualAssetItem.transferAmount.split('|')[0];
+                                var transferFrozenAmount = perpetualAssetItem.transferFrozenAmount.split('|')[0];
+                                var data = {'asset': asset, 'availableAmount': availableAmount, 'floatAmount_d': floatAmount_d, 'floatAmount_s': floatAmount_s, 'frozenAmount_d': frozenAmount_d, 'frozenAmount_s': frozenAmount_s, 'frozenMarginAmount_d': frozenMarginAmount_d, 'frozenMarginAmount_s': frozenMarginAmount_s, 'initialAmount': initialAmount, 'marginAmount_d': marginAmount_d, 'marginAmount_s': marginAmount_s, 'netAmount': netAmount, 'positionValue': positionValue, 'realLeverageRatio': realLeverageRatio, 'totalAmount_d': totalAmount_d, 'totalAmount_s': totalAmount_s, 'transferAmount': transferAmount, 'transferFrozenAmount': transferFrozenAmount};
+                                perpetualAssetJson.push(data);
+                                RefreshTable('#perpetual_asset', totalAssetJson);
+                            }
+                        }
+
+                        var perpetualPositionChecked = account.PerpetualPositionChecked;
+                        if (JSON.stringify(perpetualPositionChecked) != '{}') {
+                            var perpetualPositionJson = [];
+                            for (var positionK in perpetualPositionChecked) {
+                                var perpetualPositionItem = perpetualPositionChecked[positionK];
+                                var instrumentKey = perpetualPositionItem.instrumentKey;
+                                var netPosition_d = perpetualPositionItem.netPosition_d.split('|')[0];
+                                var netPosition_s = perpetualPositionItem.netPosition_s.split('|')[0];
+                                var netAvgPrice_d = perpetualPositionItem.netAvgPrice_d.split('|')[0];
+                                var netAvgPrice_s = perpetualPositionItem.netAvgPrice_s.split('|')[0];
+                                var floatAmount_d = perpetualPositionItem.floatAmount_d.split('|')[0];
+                                var floatAmount_s = perpetualPositionItem.floatAmount_s.split('|')[0];
+                                var liquidationPrice_d = perpetualPositionItem.liquidationPrice_d.split('|')[0];
+                                var underwayAbPosition = perpetualPositionItem.underwayAbPosition.split('|')[0];
+                                var underwayNetPosition = perpetualPositionItem.underwayNetPosition.split('|')[0];
+                                var data = {'instrumentKey': instrumentKey, 'netPosition_d': netPosition_d, 'netPosition_s': netPosition_s, 'netAvgPrice_d': netAvgPrice_d, 'netAvgPrice_s': netAvgPrice_s, 'floatAmount_d': floatAmount_d, 'floatAmount_s': floatAmount_s, 'liquidationPrice_d': liquidationPrice_d, 'underwayAbPosition': underwayAbPosition, 'underwayNetPosition': underwayNetPosition};
+                                perpetualPositionJson.push(data);
+                                RefreshTable('#perpetual_position', perpetualPositionJson);
+                            }
+                        }
+
+                        var savingAssetChecked = account.SavingAssetChecked;
+                        if (JSON.stringify(savingAssetChecked) != '{}') {
+                        }
+
+                        var spotAssetChecked = account.SpotAssetChecked;
+                        if (JSON.stringify(spotAssetChecked) != '{}') {
+                            var spotAssetJson = [];
+                            for (var assetK in spotAssetChecked) {
+                                var spotAssetItem = spotAssetChecked[assetK];
+                                var asset = spotAssetItem.asset.split('|')[0];
+                                var availableAmount = spotAssetItem.availableAmount.split('|')[0];
+                                var floatAmount_d = spotAssetItem.floatAmount_d.split('|')[0];
+                                var floatAmount_s = spotAssetItem.floatAmount_s.split('|')[0];
+                                var frozenAmount_d = spotAssetItem.frozenAmount_d.split('|')[0];
+                                var frozenAmount_s = spotAssetItem.frozenAmount_s.split('|')[0];
+                                var frozenMarginAmount_d = spotAssetItem.frozenMarginAmount_d.split('|')[0];
+                                var frozenMarginAmount_s = spotAssetItem.frozenMarginAmount_s.split('|')[0];
+                                var initialAmount = spotAssetItem.initialAmount.split('|')[0];
+                                var marginAmount_d = spotAssetItem.marginAmount_d.split('|')[0];
+                                var marginAmount_s = spotAssetItem.marginAmount_s.split('|')[0];
+                                var netAmount = spotAssetItem.netAmount.split('|')[0];
+                                var positionValue = spotAssetItem.positionValue.split('|')[0];
+                                var realLeverageRatio = spotAssetItem.realLeverageRatio.split('|')[0];
+                                var totalAmount_d = spotAssetItem.totalAmount_d.split('|')[0];
+                                var totalAmount_s = spotAssetItem.totalAmount_s.split('|')[0];
+                                var transferAmount = spotAssetItem.transferAmount.split('|')[0];
+                                var transferFrozenAmount = spotAssetItem.transferFrozenAmount.split('|')[0];
+                                var data = {'asset': asset, 'availableAmount': availableAmount, 'floatAmount_d': floatAmount_d, 'floatAmount_s': floatAmount_s, 'frozenAmount_d': frozenAmount_d, 'frozenAmount_s': frozenAmount_s, 'frozenMarginAmount_d': frozenMarginAmount_d, 'frozenMarginAmount_s': frozenMarginAmount_s, 'initialAmount': initialAmount, 'marginAmount_d': marginAmount_d, 'marginAmount_s': marginAmount_s, 'netAmount': netAmount, 'positionValue': positionValue, 'realLeverageRatio': realLeverageRatio, 'totalAmount_d': totalAmount_d, 'totalAmount_s': totalAmount_s, 'transferAmount': transferAmount, 'transferFrozenAmount': transferFrozenAmount};
+                                spotAssetJson.push(data);
+                                RefreshTable('#spot_asset', spotAssetJson);
+                            }
+                        }
+
+                        var totalAssetChecked = account.TotalAssetChecked;
+                        if (JSON.stringify(totalAssetChecked) != '{}') {
+                            var totalAssetJson = [];
+                            for (var assetK in totalAssetChecked) {
+                                totalAssetItem = totalAssetChecked[assetK];
+                                var asset = totalAssetItem.asset.split('|')[0];
+                                var availableAmount = totalAssetItem.availableAmount.split('|')[0];
+                                var floatAmount_d = totalAssetItem.floatAmount_d.split('|')[0];
+                                var floatAmount_s = totalAssetItem.floatAmount_s.split('|')[0];
+                                var frozenAmount_d = totalAssetItem.frozenAmount_d.split('|')[0];
+                                var frozenAmount_s = totalAssetItem.frozenAmount_s.split('|')[0];
+                                var frozenMarginAmount_d = totalAssetItem.frozenMarginAmount_d.split('|')[0];
+                                var frozenMarginAmount_s = totalAssetItem.frozenMarginAmount_s.split('|')[0];
+                                var initialAmount = totalAssetItem.initialAmount.split('|')[0];
+                                var marginAmount_d = totalAssetItem.marginAmount_d.split('|')[0];
+                                var marginAmount_s = totalAssetItem.marginAmount_s.split('|')[0];
+                                var netAmount = totalAssetItem.netAmount.split('|')[0];
+                                var positionValue = totalAssetItem.positionValue.split('|')[0];
+                                var realLeverageRatio = totalAssetItem.realLeverageRatio.split('|')[0];
+                                var totalAmount_d = totalAssetItem.totalAmount_d.split('|')[0];
+                                var totalAmount_s = totalAssetItem.totalAmount_s.split('|')[0];
+                                var transferAmount = totalAssetItem.transferAmount.split('|')[0];
+                                var transferFrozenAmount = totalAssetItem.transferFrozenAmount.split('|')[0];
+                                var data = {'asset': asset, 'availableAmount': availableAmount, 'floatAmount_d': floatAmount_d, 'floatAmount_s': floatAmount_s, 'frozenAmount_d': frozenAmount_d, 'frozenAmount_s': frozenAmount_s, 'frozenMarginAmount_d': frozenMarginAmount_d, 'frozenMarginAmount_s': frozenMarginAmount_s, 'initialAmount': initialAmount, 'marginAmount_d': marginAmount_d, 'marginAmount_s': marginAmount_s, 'netAmount': netAmount, 'positionValue': positionValue, 'realLeverageRatio': realLeverageRatio, 'totalAmount_d': totalAmount_d, 'totalAmount_s': totalAmount_s, 'transferAmount': transferAmount, 'transferFrozenAmount': transferFrozenAmount};
+                                totalAssetJson.push(data);
+                                RefreshTable('#total_asset', totalAssetJson);
+                            }
+                        }
+
+                        var uFutureAssetChecked = account.UFutureAssetChecked;
+                        if (JSON.stringify(uFutureAssetChecked) != '{}') {
+                            var ufutureAssetJson = [];
+                            for (var assetK in uFutureAssetChecked) {
+                                ufutureAssetItem = uFutureAssetChecked[assetK];
+                                var asset = ufutureAssetItem.asset.split('|')[0];
+                                var availableAmount = ufutureAssetItem.availableAmount.split('|')[0];
+                                var floatAmount_d = ufutureAssetItem.floatAmount_d.split('|')[0];
+                                var floatAmount_s = ufutureAssetItem.floatAmount_s.split('|')[0];
+                                var frozenAmount_d = ufutureAssetItem.frozenAmount_d.split('|')[0];
+                                var frozenAmount_s = ufutureAssetItem.frozenAmount_s.split('|')[0];
+                                var frozenMarginAmount_d = ufutureAssetItem.frozenMarginAmount_d.split('|')[0];
+                                var frozenMarginAmount_s = ufutureAssetItem.frozenMarginAmount_s.split('|')[0];
+                                var initialAmount = ufutureAssetItem.initialAmount.split('|')[0];
+                                var marginAmount_d = ufutureAssetItem.marginAmount_d.split('|')[0];
+                                var marginAmount_s = ufutureAssetItem.marginAmount_s.split('|')[0];
+                                var netAmount = ufutureAssetItem.netAmount.split('|')[0];
+                                var positionValue = ufutureAssetItem.positionValue.split('|')[0];
+                                var realLeverageRatio = ufutureAssetItem.realLeverageRatio.split('|')[0];
+                                var totalAmount_d = ufutureAssetItem.totalAmount_d.split('|')[0];
+                                var totalAmount_s = ufutureAssetItem.totalAmount_s.split('|')[0];
+                                var transferAmount = ufutureAssetItem.transferAmount.split('|')[0];
+                                var transferFrozenAmount = ufutureAssetItem.transferFrozenAmount.split('|')[0];
+                                var data = {'asset': asset, 'availableAmount': availableAmount, 'floatAmount_d': floatAmount_d, 'floatAmount_s': floatAmount_s, 'frozenAmount_d': frozenAmount_d, 'frozenAmount_s': frozenAmount_s, 'frozenMarginAmount_d': frozenMarginAmount_d, 'frozenMarginAmount_s': frozenMarginAmount_s, 'initialAmount': initialAmount, 'marginAmount_d': marginAmount_d, 'marginAmount_s': marginAmount_s, 'netAmount': netAmount, 'positionValue': positionValue, 'realLeverageRatio': realLeverageRatio, 'totalAmount_d': totalAmount_d, 'totalAmount_s': totalAmount_s, 'transferAmount': transferAmount, 'transferFrozenAmount': transferFrozenAmount};
+                                ufutureAssetJson.push(data);
+                                RefreshTable('#ufuture_asset', ufutureAssetJson);
+                            }
+                        }
+
+                        var uFuturePositionChecked = account.UFuturePositionChecked;
+                        if (JSON.stringify(uFuturePositionChecked) != '{}') {
+                            var ufuturePositionJson = [];
+                            for (var positionK in uFuturePositionChecked) {
+                                var ufuturePositionItem = uFuturePositionChecked[positionK];
+                                var instrumentKey = ufuturePositionItem.instrumentKey;
+                                var netPosition_d = ufuturePositionItem.netPosition_d.split('|')[0];
+                                var netPosition_s = ufuturePositionItem.netPosition_s.split('|')[0];
+                                var netAvgPrice_d = ufuturePositionItem.netAvgPrice_d.split('|')[0];
+                                var netAvgPrice_s = ufuturePositionItem.netAvgPrice_s.split('|')[0];
+                                var floatAmount_d = ufuturePositionItem.floatAmount_d.split('|')[0];
+                                var floatAmount_s = ufuturePositionItem.floatAmount_s.split('|')[0];
+                                var liquidationPrice_d = ufuturePositionItem.liquidationPrice_d.split('|')[0];
+                                var underwayAbPosition = ufuturePositionItem.underwayAbPosition.split('|')[0];
+                                var underwayNetPosition = ufuturePositionItem.underwayNetPosition.split('|')[0];
+                                var data = {'instrumentKey': instrumentKey, 'netPosition_d': netPosition_d, 'netPosition_s': netPosition_s, 'netAvgPrice_d': netAvgPrice_d, 'netAvgPrice_s': netAvgPrice_s, 'floatAmount_d': floatAmount_d, 'floatAmount_s': floatAmount_s, 'liquidationPrice_d': liquidationPrice_d, 'underwayAbPosition': underwayAbPosition, 'underwayNetPosition': underwayNetPosition};
+                                ufuturePositionJson.push(data);
+                                RefreshTable('#ufuture_position', ufuturePositionJson);
+                            }
+                        }
+                    }
+                }
+            }      
+        });
+    });
+
+function InitTableConfig() {
+    $('#main_form').DataTable({
+        "ordering": false,
+        "info": false,
+        "searching": false,
+        "paging": false,
+        "columns": [
+            {data: 'main_form_col1', title: ''},
+            {data: 'main_form_val1', title: ''},
+            {data: 'main_form_col2', title: ''},
+            {data: 'main_form_val2', title: ''}
+            // {data: 'ProductName', title: ''},
+            // {data: 'AccountID', title: ''},
+            // {data: 'StrategyID', title: ''},
+            // {data: 'TraderID', title: ''},
+            // {data: 'BaseAsset', title: ''},
+            // {data: 'Time', title: ''},
+            // {data: 'UpdateTime_D', title: ''},
+            // {data: 'UpdateTime_S', title: ''},
+            // {data: 'NetValue_D', title: ''},
+            // {data: 'NetValue_S', title: ''},
+            // {data: 'NetValueGrowthRate_D', title: ''},
+            // {data: 'NetValueGrowthRate_S', title: ''},
+            // {data: 'MaxValueToLoanRatio_D', title: ''},
+            // {data: 'MaxValueToLoanRatio_S', title: ''},
+            // {data: 'MaxRealLeverage_D', title: ''},
+            // {data: 'MaxRealLeverage_S', title: ''},
+            // {data: 'RiskExposure_D', title: ''},
+            // {data: 'RiskExposure_S', title: ''},
+            // {data: 'UnderwayOrderValue_D', title: ''},
+            // {data: 'UnderwayOrderValue_S', title: ''},
+            // {data: 'VerifyRisk', title: ''},
+            // {data: 'Utilization', title: ''}
+        ]
+    });
+
+    $('#exposure_form').DataTable({
+        "ordering": true,
+        "info": false,
+        "searching": false,
+        "paging": false,
+        // "scrollX": true,
+        "columns": [
+            {data: 'Symbol', title: 'Symbol'},
+            {data: 'ExposureAmount', title: 'ExposureAmount'},
+            {data: 'ExposureValue', title: 'ExposureValue'},
+            {data: 'InitialAmount', title: 'InitialAmount'},
+            {data: 'InitialValue', title: 'InitialValue'},
+            {data: 'DeltaAmount', title: 'DeltaAmount'},
+            {data: 'DeltaValue', title: 'DeltaValue'}
+        ]
+    });
+
+    $('#total_asset').DataTable({
+        "ordering": true,
+        "info": false,
+        "searching": false,
+        "paging": false,
+        // "scrollX": true,
+        "columns": [
+            {data: 'asset', title: 'asset'},
+            {data: 'totalAmount_d', title: 'totalAmount_d'},
+            {data: 'totalAmount_s', title: 'totalAmount_s'},
+            {data: 'positionValue', title: 'positionValue'},
+            {data: 'realLeverageRatio', title: 'realLeverageRatio'},
+            {data: 'netAmount', title: 'netAmount'},
+            {data: 'initialAmount', title: 'initialAmount'},
+            {data: 'availableAmount', title: 'availableAmount'},
+            {data: 'floatAmount_d', title: 'floatAmount_d'},
+            {data: 'floatAmount_s', title: 'floatAmount_s'},
+            {data: 'frozenAmount_d', title: 'frozenAmount_d'},
+            {data: 'frozenAmount_s', title: 'frozenAmount_s'},
+            {data: 'frozenMarginAmount_d', title: 'frozenMarginAmount_d'},
+            {data: 'frozenMarginAmount_s', title: 'frozenMarginAmount_s'},
+            {data: 'marginAmount_d', title: 'marginAmount_d'},
+            {data: 'marginAmount_s', title: 'marginAmount_s'},
+            {data: 'transferAmount', title: 'transferAmount'},
+            {data: 'transferFrozenAmount', title: 'transferFrozenAmount'}
+        ]
+    });
+
+    $('#spot_asset').DataTable({
+        "ordering": true,
+        "info": false,
+        "searching": false,
+        "paging": false,
+        // "scrollX": true,
+        "columns": [
+            {data: 'asset', title: 'asset'},
+            {data: 'totalAmount_d', title: 'totalAmount_d'},
+            {data: 'totalAmount_s', title: 'totalAmount_s'},
+            {data: 'positionValue', title: 'positionValue'},
+            {data: 'realLeverageRatio', title: 'realLeverageRatio'},
+            {data: 'netAmount', title: 'netAmount'},
+            {data: 'initialAmount', title: 'initialAmount'},
+            {data: 'availableAmount', title: 'availableAmount'},
+            {data: 'floatAmount_d', title: 'floatAmount_d'},
+            {data: 'floatAmount_s', title: 'floatAmount_s'},
+            {data: 'frozenAmount_d', title: 'frozenAmount_d'},
+            {data: 'frozenAmount_s', title: 'frozenAmount_s'},
+            {data: 'frozenMarginAmount_d', title: 'frozenMarginAmount_d'},
+            {data: 'frozenMarginAmount_s', title: 'frozenMarginAmount_s'},
+            {data: 'marginAmount_d', title: 'marginAmount_d'},
+            {data: 'marginAmount_s', title: 'marginAmount_s'},
+            {data: 'transferAmount', title: 'transferAmount'},
+            {data: 'transferFrozenAmount', title: 'transferFrozenAmount'}
+        ]
+    });
+
+    $('#ufuture_asset').DataTable({
+        "ordering": true,
+        "info": false,
+        "searching": false,
+        "paging": false,
+        // "scrollX": true,
+        "columns": [
+            {data: 'asset', title: 'asset'},
+            {data: 'totalAmount_d', title: 'totalAmount_d'},
+            {data: 'totalAmount_s', title: 'totalAmount_s'},
+            {data: 'positionValue', title: 'positionValue'},
+            {data: 'realLeverageRatio', title: 'realLeverageRatio'},
+            {data: 'netAmount', title: 'netAmount'},
+            {data: 'initialAmount', title: 'initialAmount'},
+            {data: 'availableAmount', title: 'availableAmount'},
+            {data: 'floatAmount_d', title: 'floatAmount_d'},
+            {data: 'floatAmount_s', title: 'floatAmount_s'},
+            {data: 'frozenAmount_d', title: 'frozenAmount_d'},
+            {data: 'frozenAmount_s', title: 'frozenAmount_s'},
+            {data: 'frozenMarginAmount_d', title: 'frozenMarginAmount_d'},
+            {data: 'frozenMarginAmount_s', title: 'frozenMarginAmount_s'},
+            {data: 'marginAmount_d', title: 'marginAmount_d'},
+            {data: 'marginAmount_s', title: 'marginAmount_s'},
+            {data: 'transferAmount', title: 'transferAmount'},
+            {data: 'transferFrozenAmount', title: 'transferFrozenAmount'}
+        ]
+    });
+
+    $('#ufuture_position').DataTable({
+        "ordering": true,
+        "info": false,
+        "searching": false,
+        "paging": false,
+        // "scrollX": true,
+        "columns": [
+            {data: 'instrumentKey', title: 'instrumentKey'},
+            {data: 'netPosition_d', title: 'netPosition_d'},
+            {data: 'netPosition_s', title: 'netPosition_s'},
+            {data: 'netAvgPrice_d', title: 'netAvgPrice_d'},
+            {data: 'netAvgPrice_s', title: 'netAvgPrice_s'},
+            {data: 'floatAmount_d', title: 'floatAmount_d'},
+            {data: 'floatAmount_s', title: 'floatAmount_s'},
+            {data: 'liquidationPrice_d', title: 'liquidationPrice_d'},
+            {data: 'underwayAbPosition', title: 'underwayAbPosition'},
+            {data: 'underwayNetPosition', title: 'underwayNetPosition'}
+        ]
+    });
+
+    $('#perpetual_asset').DataTable({
+        "ordering": true,
+        "info": false,
+        "searching": false,
+        "paging": false,
+        // "scrollX": true,
+        "columns": [
+            {data: 'asset', title: 'asset'},
+            {data: 'totalAmount_d', title: 'totalAmount_d'},
+            {data: 'totalAmount_s', title: 'totalAmount_s'},
+            {data: 'positionValue', title: 'positionValue'},
+            {data: 'realLeverageRatio', title: 'realLeverageRatio'},
+            {data: 'netAmount', title: 'netAmount'},
+            {data: 'initialAmount', title: 'initialAmount'},
+            {data: 'availableAmount', title: 'availableAmount'},
+            {data: 'floatAmount_d', title: 'floatAmount_d'},
+            {data: 'floatAmount_s', title: 'floatAmount_s'},
+            {data: 'frozenAmount_d', title: 'frozenAmount_d'},
+            {data: 'frozenAmount_s', title: 'frozenAmount_s'},
+            {data: 'frozenMarginAmount_d', title: 'frozenMarginAmount_d'},
+            {data: 'frozenMarginAmount_s', title: 'frozenMarginAmount_s'},
+            {data: 'marginAmount_d', title: 'marginAmount_d'},
+            {data: 'marginAmount_s', title: 'marginAmount_s'},
+            {data: 'transferAmount', title: 'transferAmount'},
+            {data: 'transferFrozenAmount', title: 'transferFrozenAmount'}
+        ]
+    });
+
+    $('#perpetual_position').DataTable({
+        "ordering": true,
+        "info": false,
+        "searching": false,
+        "paging": false,
+        // "scrollX": true,
+        "columns": [
+            {data: 'instrumentKey', title: 'instrumentKey'},
+            {data: 'netPosition_d', title: 'netPosition_d'},
+            {data: 'netPosition_s', title: 'netPosition_s'},
+            {data: 'netAvgPrice_d', title: 'netAvgPrice_d'},
+            {data: 'netAvgPrice_s', title: 'netAvgPrice_s'},
+            {data: 'floatAmount_d', title: 'floatAmount_d'},
+            {data: 'floatAmount_s', title: 'floatAmount_s'},
+            {data: 'liquidationPrice_d', title: 'liquidationPrice_d'},
+            {data: 'underwayAbPosition', title: 'underwayAbPosition'},
+            {data: 'underwayNetPosition', title: 'underwayNetPosition'}
+        ]
+    });
+
+}
+
+
+</script>
+{% endblock %}
+
+{% block content %}
+<input class="text-center font-weight-bold" type="hidden" id="accountId" value="{{ account_id }}">
+<br>
+<table id="main_form" class="display"></table>
+
+<br>
+<br>
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+    <a class="nav-link active" aria-current="page" href="#exposureInfo" data-toggle="tab">Exposure</a>
+    </li>
+    <li class="nav-item">
+    <a class="nav-link" href="#totalAssetInfo" data-toggle="tab">TotalAsset</a>
+    </li>
+    <li class="nav-item">
+    <a class="nav-link" href="#spotAssetInfo" data-toggle="tab">SpotAsset</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#ufutureAssetInfo" data-toggle="tab">UfutureAsset</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#ufuturePositionInfo" data-toggle="tab">UfuturePosition</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#perpetualAssetInfo" data-toggle="tab">PerpetualAsset</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#perpetualPositionInfo" data-toggle="tab">PerpetualPosition</a>
+    </li>
+</ul>
+<br>
+<br>
+
+<div class="tab-content">
+    <div class="tab-pane active" id="exposureInfo">
+        <table id="exposure_form" class="display"></table>
+    </div>
+
+    <div class="tab-pane" id="totalAssetInfo">
+        <table id="total_asset" class="display"></table>
+    </div>
+
+    <div class="tab-pane" id="spotAssetInfo">
+        <table id="spot_asset" class="display"></table>
+    </div>
+
+    <div class="tab-pane" id="ufutureAssetInfo">
+        <table id="ufuture_asset" class="display"></table>
+    </div>
+
+    <div class="tab-pane" id="ufuturePositionInfo">
+        <table id="ufuture_position" class="display"></table>
+    </div>
+
+    <div class="tab-pane" id="perpetualAssetInfo">
+        <table id="perpetual_asset" class="display"></table>
+    </div>
+
+    <div class="tab-pane" id="perpetualPositionInfo">
+        <table id="perpetual_position" class="display"></table>
+    </div>
+
+</div>
+
+{% endblock %}
