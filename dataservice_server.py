@@ -132,6 +132,16 @@ def get_okx_max_loan():
     return jsonify({"value": main_contract_list})
 
 
+@app.route('/get_net_value_data')
+@login_required
+def get_net_value_data():
+    account_id = request.args['account']
+    start_date = request.args['start']
+    end_date = request.args['end']
+    net_value_data = data_service.get_net_value_data(account_id, start_date, end_date)
+    return jsonify({"value": net_value_data})
+
+
 @app.route('/get_binance_funding_rate')
 @login_required
 def get_binance_funding_rate():
