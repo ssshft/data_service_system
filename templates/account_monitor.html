@@ -1,67 +1,144 @@
 {% extends "base.html" %}
 {% block javascript %}
-<script type="text/javascript" src="static/jquery/jquery.js"></script>
-<link rel="stylesheet" type="text/css" href="static/datatables/datatables.min.css"/>
-<script type="text/javascript" src="static/datatables/datatables.min.js"></script>
-<script type="text/javascript" src="static/socketio/socket.io.min.js"></script>
-<script type="text/javascript" src="static/js/utility.js"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='jquery/jquery.js') }}"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='datatables/datatables.min.css') }}"/>
+<script type="text/javascript" src="{{ url_for('static', filename='datatables/datatables.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='socketio/socket.io.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/utility.js') }}"></script>
 <script type="text/javascript" language="javascript" class="init">
     $(document).ready(function() {
         InitTableConfig();
+
         var namespace = '/account_info';
         var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
-        socket.on('account_info_view', function (res) {
-            var ty = res.text['type']
-            if (ty == 4) { // account view
-                var item = res.text['data'];
-                var accounts = item.list;
-                var accountJson = [];
-                for (var k in accounts) {
-                    account = accounts[k]
-                    var accountId = account.AccountID;
-                    var accountName = account.AccountName;
-                    var baseAsset = account.BaseAsset;
-                    var leverage = account.Leverage.toFixed(2);
-                    var nowNetValue = account.NowNetValue.toFixed(2);
-                    var riskExposure = account.RiskExposure.toFixed(2);
-                    var time = account.Time;
-                    var detailRef = '<a href="/account_detail/' + accountId + '">Detail</a>';
-                    var data = {'AccountID': accountId, 'AccountName': accountName, 'BaseAsset': baseAsset, 'Leverage': leverage, 'NowNetValue': nowNetValue, 'RiskExposure': riskExposure, 'Time': time, 'DetailRef': detailRef};
-                    accountJson.push(data);
-                    RefreshTable('#account_data', accountJson);
-                }
-            }      
 
+        socket.on('connect', function () {
+            setConnectionStatus('#connStatus', true);
+        });
+
+        socket.on('disconnect', function () {
+            setConnectionStatus('#connStatus', false);
+        });
+
+        socket.on('account_info_view', function (res) {
+            var ty = res.text['type'];
+            if (ty != 4) { // only handle the account overview payload here
+                return;
+            }
+
+            var item = res.text['data'];
+            var accounts = item.list;
+            var accountJson = [];
+            var accountCount = 0;
+            var totalNetValue = 0;
+            var totalLeverage = 0;
+            var maxRiskExposure = null; // {value, name} of the account with the largest RiskExposure this push
+
+            for (var k in accounts) {
+                var account = accounts[k];
+                var accountId = account.AccountID;
+                var accountName = account.AccountName;
+                var baseAsset = account.BaseAsset;
+                var leverage = Number(account.Leverage) || 0;
+                var nowNetValue = Number(account.NowNetValue) || 0;
+                var riskExposure = Number(account.RiskExposure) || 0;
+                var time = account.Time;
+                var detailRef = '<a class="btn btn-sm btn-outline-primary" href="/account_detail/' + accountId + '">查看详情</a>';
+
+                accountJson.push({
+                    'AccountID': accountId,
+                    'AccountName': accountName,
+                    'BaseAsset': baseAsset,
+                    'Leverage': leverage.toFixed(2),
+                    'NowNetValue': formatNumber(nowNetValue),
+                    'RiskExposure': formatNumber(riskExposure),
+                    'Time': time,
+                    'DetailRef': detailRef
+                });
+
+                accountCount += 1;
+                totalNetValue += nowNetValue;
+                totalLeverage += leverage;
+                if (maxRiskExposure === null || riskExposure > maxRiskExposure.value) {
+                    maxRiskExposure = {value: riskExposure, name: accountName || accountId};
+                }
+            }
+
+            RefreshTable('#account_data', accountJson);
+
+            $('#statAccountCount').text(accountCount);
+            $('#statTotalNetValue').text(formatNumber(totalNetValue));
+            $('#statAvgLeverage').text(accountCount ? (totalLeverage / accountCount).toFixed(2) : '--');
+            $('#statMaxRiskExposure').text(maxRiskExposure ? (formatNumber(maxRiskExposure.value) + '（' + maxRiskExposure.name + '）') : '--');
+
+            touchLastUpdated('#connStatus');
         });
     });
 
-function InitTableConfig() {
-    $('#account_data').DataTable({
-        "ordering": false,
-        "info": false,
-        "searching": false,
-        "paging": false,
-        "columns": [
-            {data: 'AccountID', title: 'AccountID'},
-            {data: 'AccountName', title: 'AccountName'},
-            {data: 'BaseAsset', title: 'BaseAsset'},
-            {data: 'Leverage', title: 'Leverage'},
-            {data: 'NowNetValue', title: 'NowNetValue'},
-            {data: 'RiskExposure', title: 'RiskExposure'},
-            {data: 'Time', title: 'Time'},
-            {data: 'DetailRef', title: 'Detail'}
-        ]
-    });
-}
-
-
+    function InitTableConfig() {
+        $('#account_data').DataTable({
+            "ordering": true,
+            "info": true,
+            "searching": true,
+            "paging": true,
+            "pageLength": 25,
+            "language": {
+                "search": "搜索：",
+                "info": "共 _TOTAL_ 个账户，当前显示第 _START_ - _END_ 条",
+                "infoEmpty": "暂无账户数据",
+                "infoFiltered": "（从 _MAX_ 个账户中筛选）",
+                "lengthMenu": "每页显示 _MENU_ 条",
+                "paginate": {"previous": "上一页", "next": "下一页"},
+                "zeroRecords": "没有匹配的账户"
+            },
+            "columns": [
+                {data: 'AccountID', title: '账户ID'},
+                {data: 'AccountName', title: '账户名称'},
+                {data: 'BaseAsset', title: '基础资产'},
+                {data: 'Leverage', title: '杠杆', className: 'text-right'},
+                {data: 'NowNetValue', title: '当前净值', className: 'text-right'},
+                {data: 'RiskExposure', title: '风险敞口', className: 'text-right'},
+                {data: 'Time', title: '更新时间'},
+                {data: 'DetailRef', title: '操作', orderable: false}
+            ]
+        });
+    }
 </script>
 {% endblock %}
 
 {% block content %}
-<br>
-<p class="text-center font-weight-bold">账户信息</p>
-<br>
-<table id="account_data"></table>
+<div class="page-header">
+    <div>
+        <h4>账户监控</h4>
+        <div class="page-subtitle">实时账户总览 · 数据来自风控系统 Redis 推送，最长 10 秒延迟</div>
+    </div>
+    <div id="connStatus" class="conn-status is-offline">
+        <span class="conn-dot"></span>
+        <span class="conn-label">连接中…</span>
+        <span class="conn-updated"></span>
+    </div>
+</div>
 
+<div class="stat-row">
+    <div class="stat-card">
+        <span class="stat-label">账户总数</span>
+        <div class="stat-value" id="statAccountCount">--</div>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">总净值合计</span>
+        <div class="stat-value" id="statTotalNetValue">--</div>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">平均杠杆</span>
+        <div class="stat-value" id="statAvgLeverage">--</div>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">风险敞口最高账户</span>
+        <div class="stat-value" id="statMaxRiskExposure" style="font-size: 1.05rem;">--</div>
+    </div>
+</div>
+
+<div class="panel-card">
+    <table id="account_data" class="table table-hover" style="width: 100%;"></table>
+</div>
 {% endblock %}
