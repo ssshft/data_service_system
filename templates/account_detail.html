@@ -13,18 +13,27 @@
         InitTableConfig();
         var namespace = '/account_info';
         var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
+
+        socket.on('connect', function () {
+            setConnectionStatus('#connStatus', true);
+        });
+
+        socket.on('disconnect', function () {
+            setConnectionStatus('#connStatus', false);
+        });
+
         socket.on('account_info_detail', function (res) {
             var ty = res.text['type']
             if (ty == 1) { // account detail
-                var accountId = Number($("#accountId").val());
+                var viewedAccountId = Number($("#accountId").val());
                 var item = res.text['data'];
                 var accounts = item.list;
                 for (var k in accounts) {
                     account = accounts[k];
-                    console.log(accountId);
-                    console.log(account);
                     var accId = Number(account.customer_id);
-                    if (accId === accountId) {
+                    if (accId === viewedAccountId) {
+                        touchLastUpdated('#connStatus');
+
                         var cFutureAssetChecked = account.CFutureAssetChecked;
                         if (JSON.stringify(cFutureAssetChecked) != '{}') {
 
@@ -65,7 +74,6 @@
 
                         var mainFormChecked = account.MainFormChecked;
                         if (JSON.stringify(mainFormChecked) != '{}') {
-                            var mainFormJson = [];
                             var productName = '';
                             var accountId = '';
                             var strategyId = '';
@@ -140,30 +148,35 @@
                                 }
                             }
                             
-                            var data1 = {'main_form_col1': 'ProductName', 'main_form_val1': productName, 'main_form_col2': 'AccountID', 'main_form_val2': accountId};
-                            var data2 = {'main_form_col1': 'StrategyID', 'main_form_val1': strategyId, 'main_form_col2': 'TraderID', 'main_form_val2': traderId};
-                            var data3 = {'main_form_col1': 'BaseAsset', 'main_form_val1': baseAsset, 'main_form_col2': 'Time', 'main_form_val2': time};
-                            var data4 = {'main_form_col1': 'UpdateTime_D', 'main_form_val1': updateTimeD, 'main_form_col2': 'UpdateTime_S', 'main_form_val2': updateTimeS};
-                            var data5 = {'main_form_col1': 'NetValue_D', 'main_form_val1': netValueD, 'main_form_col2': 'NetValue_S', 'main_form_val2': netValueS};
-                            var data6 = {'main_form_col1': 'NetValueGrowthRate_D', 'main_form_val1': netValueGrowthRateD, 'main_form_col2': 'NetValueGrowthRate_S', 'main_form_val2': netValueGrowthRateS};
-                            var data7 = {'main_form_col1': 'MaxValueToLoanRatio_D', 'main_form_val1': maxValueToLoanRatioD, 'main_form_col2': 'MaxValueToLoanRatio_S', 'main_form_val2': maxValueToLoanRatioS};
-                            var data8 = {'main_form_col1': 'MaxRealLeverage_D', 'main_form_val1': maxRealLeverageD, 'main_form_col2': 'MaxRealLeverage_S', 'main_form_val2': maxRealLeverageS};
-                            var data9 = {'main_form_col1': 'RiskExposure_D', 'main_form_val1': riskExposureD, 'main_form_col2': 'RiskExposure_S', 'main_form_val2': riskExposureS};
-                            var data10 = {'main_form_col1': 'UnderwayOrderValue_D', 'main_form_val1': underwayOrderValueD, 'main_form_col2': 'UnderwayOrderValue_S', 'main_form_val2': underwayOrderValueS};
-                            var data11 = {'main_form_col1': 'VerifyRisk', 'main_form_val1': verifyRisk, 'main_form_col2': 'Utilization', 'main_form_val2': utilization};
+                            // render the account "profile" fields directly into the header
+                            // cards instead of a generic key/value DataTable (see #detailHeader
+                            // and .stat-row in the content block below)
+                            $('#fieldProductName').text(productName || '--');
+                            $('#fieldAccountId').text(accountId || '--');
+                            $('#fieldStrategyId').text(strategyId || '--');
+                            $('#fieldTraderId').text(traderId || '--');
+                            $('#fieldBaseAsset').text(baseAsset || '--');
+                            $('#fieldTime').text(time || '--');
+                            $('#fieldUpdateTime').text((updateTimeD || '--') + ' / ' + (updateTimeS || '--'));
+                            $('#fieldNetValue').text((netValueD || '--') + ' / ' + (netValueS || '--'));
+                            $('#fieldNetValueGrowthRate').text((netValueGrowthRateD || '--') + ' / ' + (netValueGrowthRateS || '--'));
+                            $('#fieldMaxValueToLoanRatio').text((maxValueToLoanRatioD || '--') + ' / ' + (maxValueToLoanRatioS || '--'));
+                            $('#fieldMaxRealLeverage').text((maxRealLeverageD || '--') + ' / ' + (maxRealLeverageS || '--'));
+                            $('#fieldRiskExposure').text((riskExposureD || '--') + ' / ' + (riskExposureS || '--'));
+                            $('#fieldUnderwayOrderValue').text((underwayOrderValueD || '--') + ' / ' + (underwayOrderValueS || '--'));
+                            $('#fieldVerifyRisk').text(verifyRisk || '--');
+                            $('#fieldUtilization').text(utilization || '--');
 
-                            mainFormJson.push(data1);
-                            mainFormJson.push(data2);
-                            mainFormJson.push(data3);
-                            mainFormJson.push(data4);
-                            mainFormJson.push(data5);
-                            mainFormJson.push(data6);
-                            mainFormJson.push(data7);
-                            mainFormJson.push(data8);
-                            mainFormJson.push(data9);
-                            mainFormJson.push(data10);
-                            mainFormJson.push(data11);
-                            RefreshTable('#main_form', mainFormJson);
+                            // Utilization is rendered as a plain value plus a generic 0-100%
+                            // progress bar when it parses as a percentage; this is purely a
+                            // visual aid and does not apply any risk judgement of our own.
+                            var utilizationPct = parseFloat(String(utilization).replace('%', ''));
+                            if (!isNaN(utilizationPct)) {
+                                var clampedPct = Math.max(0, Math.min(100, utilizationPct));
+                                $('#fieldUtilizationBar').css('width', clampedPct + '%');
+                            } else {
+                                $('#fieldUtilizationBar').css('width', '0%');
+                            }
                         }
 
                         var perpetualAssetChecked = account.PerpetualAssetChecked;
@@ -191,7 +204,7 @@
                                 var transferFrozenAmount = perpetualAssetItem.transferFrozenAmount.split('|')[0];
                                 var data = {'asset': asset, 'availableAmount': availableAmount, 'floatAmount_d': floatAmount_d, 'floatAmount_s': floatAmount_s, 'frozenAmount_d': frozenAmount_d, 'frozenAmount_s': frozenAmount_s, 'frozenMarginAmount_d': frozenMarginAmount_d, 'frozenMarginAmount_s': frozenMarginAmount_s, 'initialAmount': initialAmount, 'marginAmount_d': marginAmount_d, 'marginAmount_s': marginAmount_s, 'netAmount': netAmount, 'positionValue': positionValue, 'realLeverageRatio': realLeverageRatio, 'totalAmount_d': totalAmount_d, 'totalAmount_s': totalAmount_s, 'transferAmount': transferAmount, 'transferFrozenAmount': transferFrozenAmount};
                                 perpetualAssetJson.push(data);
-                                RefreshTable('#perpetual_asset', totalAssetJson);
+                                RefreshTable('#perpetual_asset', perpetualAssetJson);
                             }
                         }
 
@@ -334,45 +347,15 @@
     });
 
 function InitTableConfig() {
-    $('#main_form').DataTable({
-        "ordering": false,
-        "info": false,
-        "searching": false,
-        "paging": false,
-        "columns": [
-            {data: 'main_form_col1', title: ''},
-            {data: 'main_form_val1', title: ''},
-            {data: 'main_form_col2', title: ''},
-            {data: 'main_form_val2', title: ''}
-            // {data: 'ProductName', title: ''},
-            // {data: 'AccountID', title: ''},
-            // {data: 'StrategyID', title: ''},
-            // {data: 'TraderID', title: ''},
-            // {data: 'BaseAsset', title: ''},
-            // {data: 'Time', title: ''},
-            // {data: 'UpdateTime_D', title: ''},
-            // {data: 'UpdateTime_S', title: ''},
-            // {data: 'NetValue_D', title: ''},
-            // {data: 'NetValue_S', title: ''},
-            // {data: 'NetValueGrowthRate_D', title: ''},
-            // {data: 'NetValueGrowthRate_S', title: ''},
-            // {data: 'MaxValueToLoanRatio_D', title: ''},
-            // {data: 'MaxValueToLoanRatio_S', title: ''},
-            // {data: 'MaxRealLeverage_D', title: ''},
-            // {data: 'MaxRealLeverage_S', title: ''},
-            // {data: 'RiskExposure_D', title: ''},
-            // {data: 'RiskExposure_S', title: ''},
-            // {data: 'UnderwayOrderValue_D', title: ''},
-            // {data: 'UnderwayOrderValue_S', title: ''},
-            // {data: 'VerifyRisk', title: ''},
-            // {data: 'Utilization', title: ''}
-        ]
-    });
+    // NOTE: the account "profile"/main-form fields used to be rendered into a
+    // generic #main_form DataTable; they are now written directly into the
+    // labeled header cards in the content block below (see the
+    // MainFormChecked handling above), so there is no DataTable to init here.
 
     $('#exposure_form').DataTable({
         "ordering": true,
-        "info": false,
-        "searching": false,
+        "info": true,
+        "searching": true,
         "paging": false,
         // "scrollX": true,
         "columns": [
@@ -388,8 +371,8 @@ function InitTableConfig() {
 
     $('#total_asset').DataTable({
         "ordering": true,
-        "info": false,
-        "searching": false,
+        "info": true,
+        "searching": true,
         "paging": false,
         // "scrollX": true,
         "columns": [
@@ -416,8 +399,8 @@ function InitTableConfig() {
 
     $('#spot_asset').DataTable({
         "ordering": true,
-        "info": false,
-        "searching": false,
+        "info": true,
+        "searching": true,
         "paging": false,
         // "scrollX": true,
         "columns": [
@@ -444,8 +427,8 @@ function InitTableConfig() {
 
     $('#ufuture_asset').DataTable({
         "ordering": true,
-        "info": false,
-        "searching": false,
+        "info": true,
+        "searching": true,
         "paging": false,
         // "scrollX": true,
         "columns": [
@@ -472,8 +455,8 @@ function InitTableConfig() {
 
     $('#ufuture_position').DataTable({
         "ordering": true,
-        "info": false,
-        "searching": false,
+        "info": true,
+        "searching": true,
         "paging": false,
         // "scrollX": true,
         "columns": [
@@ -492,8 +475,8 @@ function InitTableConfig() {
 
     $('#perpetual_asset').DataTable({
         "ordering": true,
-        "info": false,
-        "searching": false,
+        "info": true,
+        "searching": true,
         "paging": false,
         // "scrollX": true,
         "columns": [
@@ -520,8 +503,8 @@ function InitTableConfig() {
 
     $('#perpetual_position').DataTable({
         "ordering": true,
-        "info": false,
-        "searching": false,
+        "info": true,
+        "searching": true,
         "paging": false,
         // "scrollX": true,
         "columns": [
@@ -545,13 +528,90 @@ function InitTableConfig() {
 {% endblock %}
 
 {% block content %}
-<input class="text-center font-weight-bold" type="hidden" id="accountId" value="{{ account_id }}">
-<br>
-<table id="main_form" class="display"></table>
+<input type="hidden" id="accountId" value="{{ account_id }}">
 
-<br>
-<br>
-<ul class="nav nav-tabs">
+<div class="page-header">
+    <div>
+        <a class="back-link" href="/account_monitor">&larr; 返回账户列表</a>
+        <h4 class="mt-1">账户详情 <small class="text-muted" style="font-size: 1rem; font-weight: 400;">#{{ account_id }}</small></h4>
+    </div>
+    <div id="connStatus" class="conn-status is-offline">
+        <span class="conn-dot"></span>
+        <span class="conn-label">连接中…</span>
+        <span class="conn-updated"></span>
+    </div>
+</div>
+
+<div class="detail-header">
+    <div class="row">
+        <div class="col-6 col-md-2 mb-2">
+            <span class="detail-field-label">产品名称</span>
+            <div class="detail-field-value" id="fieldProductName">--</div>
+        </div>
+        <div class="col-6 col-md-2 mb-2">
+            <span class="detail-field-label">账户ID</span>
+            <div class="detail-field-value" id="fieldAccountId">--</div>
+        </div>
+        <div class="col-6 col-md-2 mb-2">
+            <span class="detail-field-label">策略ID</span>
+            <div class="detail-field-value" id="fieldStrategyId">--</div>
+        </div>
+        <div class="col-6 col-md-2 mb-2">
+            <span class="detail-field-label">交易员ID</span>
+            <div class="detail-field-value" id="fieldTraderId">--</div>
+        </div>
+        <div class="col-6 col-md-2 mb-2">
+            <span class="detail-field-label">基础资产</span>
+            <div class="detail-field-value" id="fieldBaseAsset">--</div>
+        </div>
+        <div class="col-6 col-md-2 mb-2">
+            <span class="detail-field-label">数据时间</span>
+            <div class="detail-field-value" id="fieldTime">--</div>
+        </div>
+    </div>
+</div>
+
+<div class="stat-row">
+    <div class="stat-card">
+        <span class="stat-label">更新时间 (D / S)</span>
+        <div class="stat-value" id="fieldUpdateTime" style="font-size: 1rem;">-- / --</div>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">净值 NetValue (D / S)</span>
+        <div class="stat-value" id="fieldNetValue">-- / --</div>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">净值增长率 (D / S)</span>
+        <div class="stat-value" id="fieldNetValueGrowthRate">-- / --</div>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">最大可借比例 (D / S)</span>
+        <div class="stat-value" id="fieldMaxValueToLoanRatio">-- / --</div>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">实际最大杠杆 (D / S)</span>
+        <div class="stat-value" id="fieldMaxRealLeverage">-- / --</div>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">风险敞口 RiskExposure (D / S)</span>
+        <div class="stat-value" id="fieldRiskExposure">-- / --</div>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">在途订单价值 (D / S)</span>
+        <div class="stat-value" id="fieldUnderwayOrderValue">-- / --</div>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">风控校验 VerifyRisk</span>
+        <div class="stat-value" id="fieldVerifyRisk">--</div>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">占用率 Utilization</span>
+        <div class="stat-value" id="fieldUtilization">--</div>
+        <div class="util-bar-track"><div class="util-bar-fill" id="fieldUtilizationBar" style="width: 0%;"></div></div>
+    </div>
+</div>
+
+<ul class="nav nav-tabs section-tabs">
     <li class="nav-item">
     <a class="nav-link active" aria-current="page" href="#exposureInfo" data-toggle="tab">Exposure</a>
     </li>
@@ -574,36 +634,48 @@ function InitTableConfig() {
         <a class="nav-link" href="#perpetualPositionInfo" data-toggle="tab">PerpetualPosition</a>
     </li>
 </ul>
-<br>
-<br>
 
 <div class="tab-content">
     <div class="tab-pane active" id="exposureInfo">
-        <table id="exposure_form" class="display"></table>
+        <div class="panel-card">
+            <table id="exposure_form" class="display table table-hover" style="width: 100%;"></table>
+        </div>
     </div>
 
     <div class="tab-pane" id="totalAssetInfo">
-        <table id="total_asset" class="display"></table>
+        <div class="panel-card">
+            <table id="total_asset" class="display table table-hover" style="width: 100%;"></table>
+        </div>
     </div>
 
     <div class="tab-pane" id="spotAssetInfo">
-        <table id="spot_asset" class="display"></table>
+        <div class="panel-card">
+            <table id="spot_asset" class="display table table-hover" style="width: 100%;"></table>
+        </div>
     </div>
 
     <div class="tab-pane" id="ufutureAssetInfo">
-        <table id="ufuture_asset" class="display"></table>
+        <div class="panel-card">
+            <table id="ufuture_asset" class="display table table-hover" style="width: 100%;"></table>
+        </div>
     </div>
 
     <div class="tab-pane" id="ufuturePositionInfo">
-        <table id="ufuture_position" class="display"></table>
+        <div class="panel-card">
+            <table id="ufuture_position" class="display table table-hover" style="width: 100%;"></table>
+        </div>
     </div>
 
     <div class="tab-pane" id="perpetualAssetInfo">
-        <table id="perpetual_asset" class="display"></table>
+        <div class="panel-card">
+            <table id="perpetual_asset" class="display table table-hover" style="width: 100%;"></table>
+        </div>
     </div>
 
     <div class="tab-pane" id="perpetualPositionInfo">
-        <table id="perpetual_position" class="display"></table>
+        <div class="panel-card">
+            <table id="perpetual_position" class="display table table-hover" style="width: 100%;"></table>
+        </div>
     </div>
 
 </div>
