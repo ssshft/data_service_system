@@ -1,298 +1,182 @@
-import os
+import json
 import re
-from datetime import datetime
-from threading import Lock
 import threading
+import os
+import sys
+from datetime import datetime, timedelta
+from time import sleep
+import redis
 
-from flask import Flask, url_for, request, render_template, jsonify
-from flask_login import LoginManager, login_user, login_required
-from gevent import pywsgi
-from werkzeug.utils import redirect, secure_filename
-import pandas as pd
-from flask_socketio import SocketIO
+path = os.path.dirname(os.path.dirname((os.path.abspath(__file__))))
+if path not in sys.path:
+    sys.path.append(path)
 
-
+from database.MysqlManager import MysqlManager
+from service.DataServiceConfig import DataServieConfig
 from dataevent.DataQueue import data_queue
-from model.models import query_user, User
-from service.DataService import data_service
-from tools.Utility import get_program_path
 from tools.LogEngine import log_engine
 
-app = Flask(__name__)
 
-app.secret_key = 'data_service'
-login_manager = LoginManager()
-login_manager.login_view = 'login'
-login_manager.login_message_category = 'info'
-login_manager.login_message = 'Access denied.'
-login_manager.init_app(app)
+class DataService:
+    _instance_lock = threading.Lock()
 
-socketio = SocketIO(app)
+    def __init__(self):
+        self.data_source = None
+        self.data_base = None
+        self.re = None
+        self.history_stock_info = {}
+        self.stock_fundamental = {}
+        self.config = DataServieConfig()
+        self.connect_data_base()
+        self.connect_redis()
 
-global thread, client_num, close
-thread = None
-thread_lock = Lock()
-client_num = 0
-close = True
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(DataService, "_instance"):
+            with DataService._instance_lock:
+                if not hasattr(DataService, "_instance"):
+                    DataService._instance = object.__new__(cls)
+        return DataService._instance
 
+    def connect_data_base(self):
+        database_host = self.config.get_mysql_host()
+        database_port = self.config.get_mysql_port()
+        database_user = self.config.get_mysql_user()
+        database_password = self.config.get_mysql_password()
+        database_name = self.config.get_mysql_name()
+        self.data_base = MysqlManager(database_host, database_port, database_user, database_password, database_name)
 
-@login_manager.user_loader
-def load_user(user_id):
-    if query_user(user_id) is not None:
-        curr_user = User()
-        curr_user.id = user_id
-        return curr_user
+    def connect_redis(self):
+        # cache connection params on the instance so a dropped connection can be
+        # re-established later from receive_redis_msg() without re-reading config
+        self.redis_host = self.config.get_redis_host()
+        self.redis_port = self.config.get_redis_port()
+        self.redis_password = self.config.get_redis_password()
+        self.physical_pub_channel = self.config.get_redis_physical_sub_channel()
+        self.overview_pub_channel = self.config.get_redis_overview_pub_channel()
 
-@app.route('/')
-@login_required
-def root_dir():
-    return redirect(url_for('login'))
+        self.subscribe_redis()
+        self.receive_thread = threading.Thread(target=self.receive_redis_msg, daemon=True)
+        self.receive_thread.start()
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        user_id = request.form.get('user')
-        user = query_user(user_id)
-        if user is not None and request.form['password'] == user['password']:
-            curr_user = User()
-            curr_user.id = user_id
-            login_user(curr_user)
-            return redirect(url_for('index'))
-    return render_template('login.html')
+    def subscribe_redis(self):
+        # (re)create the redis connection and pubsub subscription; used both for the
+        # initial connect and for reconnecting after the connection drops
+        if len(self.redis_password) > 0:
+            self.re = redis.StrictRedis(host=self.redis_host, port=self.redis_port,
+                                         password=self.redis_password,
+                                         socket_timeout=5, socket_connect_timeout=5)
+        else:
+            self.re = redis.StrictRedis(host=self.redis_host, port=self.redis_port,
+                                         socket_timeout=5, socket_connect_timeout=5)
+        self.pub = self.re.pubsub()
+        self.pub.subscribe(self.physical_pub_channel)
+        self.pub.subscribe(self.overview_pub_channel)
 
+    def get_gateio_all_market_max_loan_data(self):
+        return self.data_base.get_gateio_all_market_max_loan_data()
 
-@app.route('/index')
-@login_required
-def index():
-    return render_template('base.html')
+    def get_stock_list(self):
+        return self.data_base.get_stock_list()
 
+    def get_stock_day_data(self, symbol, variable, start_date, end_date):
+        return self.data_base.get_stock_day_data(symbol, variable, start_date, end_date)
 
-@app.route('/max_loan')
-@login_required
-def max_loan():
-    return render_template('max_loan.html')
+    def get_stock_day_data_variables(self):
+        return self.data_base.get_stock_day_data_variables()
 
+    def get_stock_kline_data(self, symbol):
+        return self.data_base.get_stock_kline_data(symbol)
 
-@app.route('/funding_rate')
-@login_required
-def funding_rate():
-    return render_template('funding_rate.html')
+    def get_future_kline_data(self, symbol):
+        return self.data_base.get_future_kline_data(symbol)
 
+    def get_future_close_data(self, symbol):
+        return self.data_base.get_future_close_data(symbol)
 
-@app.route('/contract_info')
-@login_required
-def contract_info():
-    return render_template('contract_info.html')
+    def get_future_money_data(self, current_date):
+        return self.data_base.get_future_money_data(current_date)
 
+    def get_gateio_market_max_loan(self):
+        return self.data_base.get_gateio_all_market_max_loan_data()
+    
+    def get_gateio_max_loan(self, account_name):
+        return self.data_base.get_gateio_all_max_loan_data(account_name)
+    
+    def get_okx_max_loan(self, account_name):
+        return self.data_base.get_okx_all_max_loan_data(account_name)
+    
+    def get_binance_funding_rate(self, start_time, end_time):
+        return self.data_base.get_binance_all_funding_rate_data(start_time, end_time)
 
-@app.route('/kline')
-@login_required
-def kline():
-    return render_template('kline.html')
+    def get_gateio_funding_rate(self, start_time, end_time):
+        return self.data_base.get_gateio_all_funding_rate_data(start_time, end_time)
+    
+    def get_bybit_funding_rate(self, start_time, end_time):
+        return self.data_base.get_bybit_all_funding_rate_data(start_time, end_time)
 
+    def get_okx_funding_rate(self, start_time, end_time):
+        return self.data_base.get_okx_all_funding_rate_data(start_time, end_time)
+    
+    def get_binance_contract_info(self):
+        return self.data_base.get_binance_all_contract_info_data()
 
-@app.route('/contract_open_interest')
-@login_required
-def contract_open_interest():
-    return render_template('contract_open_interest.html')
+    def get_gateio_contract_info(self):
+        return self.data_base.get_gateio_all_contract_info_data()
+    
+    def get_bybit_contract_info(self):
+        return self.data_base.get_bybit_all_contract_info_data()
+    
+    def get_okx_contract_info(self):
+        return self.data_base.get_okx_all_contract_info_data()
+    
+    def get_binance_contract_open_interest(self, start_time, end_time):
+        return self.data_base.get_binance_all_open_interest_data(start_time, end_time)
+    
+    def get_gateio_contract_open_interest(self, start_time, end_time):
+        return self.data_base.get_gateio_all_open_interest_data(start_time, end_time)
+    
+    def get_bybit_contract_open_interest(self, start_time, end_time):
+        return self.data_base.get_bybit_all_open_interest_data(start_time, end_time)
 
+    def get_binance_kline(self, start_time, end_time):
+        return self.data_base.get_binance_all_kline_data(start_time, end_time)
 
-@app.route('/account_monitor')
-@login_required
-def account_monitor():
-    return render_template('account_monitor.html')
-
-
-@app.route('/account_detail/<account_id>')
-@login_required
-def account_detail(account_id):
-    return render_template('account_detail.html', account_id=account_id)
-
-
-@app.route('/get_gateio_market_max_loan')
-@login_required
-def get_gateio_market_max_loan():
-    market_max_loan = data_service.get_gateio_market_max_loan()
-    return jsonify({"value": market_max_loan})
-
-
-@app.route('/get_gateio_max_loan')
-@login_required
-def get_gateio_max_loan():
-    account_name = request.args['account']
-    max_loan = data_service.get_gateio_max_loan(account_name)
-    return jsonify({"value": max_loan})
-
-
-@app.route('/get_okx_max_loan')
-@login_required
-def get_okx_max_loan():
-    account_name = request.args['account']
-    main_contract_list = data_service.get_okx_max_loan(account_name)
-    return jsonify({"value": main_contract_list})
-
-
-@app.route('/get_binance_funding_rate')
-@login_required
-def get_binance_funding_rate():
-    start_date = request.args['start']
-    end_date = request.args['end']
-    funding_rate_data = data_service.get_binance_funding_rate(start_date, end_date)
-    return jsonify({"value": funding_rate_data})
-
-
-@app.route('/get_gateio_funding_rate')
-@login_required
-def get_gateio_funding_rate():
-    start_date = request.args['start']
-    end_date = request.args['end']
-    funding_rate_data = data_service.get_gateio_funding_rate(start_date, end_date)
-    return jsonify({"value": funding_rate_data})
-
-
-@app.route('/get_bybit_funding_rate')
-@login_required
-def get_bybit_funding_rate():
-    start_date = request.args['start']
-    end_date = request.args['end']
-    funding_rate_data = data_service.get_bybit_funding_rate(start_date, end_date)
-    return jsonify({"value": funding_rate_data})
-
-
-@app.route('/get_okx_funding_rate')
-@login_required
-def get_okx_funding_rate():
-    start_date = request.args['start']
-    end_date = request.args['end']
-    funding_rate_data = data_service.get_okx_funding_rate(start_date, end_date)
-    return jsonify({"value": funding_rate_data})
-
-
-@app.route('/get_binance_contract_info')
-@login_required
-def get_binance_contract_info():
-    contract_info = data_service.get_binance_contract_info()
-    return jsonify({"value": contract_info})
-
-
-@app.route('/get_gateio_contract_info')
-@login_required
-def get_gateio_contract_info():
-    contract_info = data_service.get_gateio_contract_info()
-    return jsonify({"value": contract_info})
-
-
-@app.route('/get_bybit_contract_info')
-@login_required
-def get_bybit_contract_info():
-    contract_info = data_service.get_bybit_contract_info()
-    return jsonify({"value": contract_info})
-
-
-@app.route('/get_okx_contract_info')
-@login_required
-def get_okx_contract_info():
-    contract_info = data_service.get_okx_contract_info()
-    return jsonify({"value": contract_info})
-
-
-@app.route('/get_binance_contract_open_interest')
-@login_required
-def get_binance_contract_open_interest():
-    start_date = request.args['start']
-    end_date = request.args['end']
-    open_interest_data = data_service.get_binance_contract_open_interest(start_date, end_date)
-    return jsonify({"value": open_interest_data})
-
-
-@app.route('/get_gateio_contract_open_interest')
-@login_required
-def get_gateio_contract_open_interest():
-    start_date = request.args['start']
-    end_date = request.args['end']
-    open_interest_data = data_service.get_gateio_contract_open_interest(start_date, end_date)
-    return jsonify({"value": open_interest_data})
-
-
-@app.route('/get_bybit_contract_open_interest')
-@login_required
-def get_bybit_contract_open_interest():
-    start_date = request.args['start']
-    end_date = request.args['end']
-    open_interest_data = data_service.get_bybit_contract_open_interest(start_date, end_date)
-    return jsonify({"value": open_interest_data})
-
-
-@app.route('/get_binance_kline')
-@login_required
-def get_binance_kline():
-    start_date = request.args['start']
-    end_date = request.args['end']
-    kline_data = data_service.get_binance_kline(start_date, end_date)
-    return jsonify({"value": kline_data})
-
-
-@app.route('/get_gateio_kline')
-@login_required
-def get_gateio_kline():
-    start_date = request.args['start']
-    end_date = request.args['end']
-    kline_data = data_service.get_gateio_kline(start_date, end_date)
-    return jsonify({"value": kline_data})
-
-
-@app.route('/get_bybit_kline')
-@login_required
-def get_bybit_kline():
-    start_date = request.args['start']
-    end_date = request.args['end']
-    kline_data = data_service.get_bybit_kline(start_date, end_date)
-    return jsonify({"value": kline_data})
-
-
-@socketio.on('connect', namespace='/account_info')
-def connect():
-    global thread, close
-    with thread_lock:
-        if thread is None:
-            close = False
-            thread = socketio.start_background_task(target=background_thread)
-
-
-def background_thread():
-    global thread
-    try:
-        while not close:
+    def get_gateio_kline(self, start_time, end_time):
+        return self.data_base.get_gateio_all_kline_data(start_time, end_time)
+    
+    def get_bybit_kline(self, start_time, end_time):
+        return self.data_base.get_bybit_all_kline_data(start_time, end_time)
+    
+    def receive_redis_msg(self):
+        retry_delay = 1
+        while True:
             try:
-                view_data = data_queue.get_view_data()
-                if view_data:
-                    socketio.emit('account_info_view', {'text': view_data}, namespace='/account_info')
-
-                detail_data = data_queue.get_detail_data()
-                if detail_data:
-                    socketio.emit('account_info_detail', {'text': detail_data}, namespace='/account_info')
+                data = self.pub.parse_response()
+                retry_delay = 1  # reset backoff once the connection is healthy again
             except Exception as e:
-                # a single bad push (malformed data, emit failure, ...) should not
-                # kill the only background pusher for this namespace
-                log_engine.warning(f'account_info background push failed: {e}')
+                log_engine.warning(f'redis pubsub connection error, will retry in {retry_delay}s: {e}')
+                sleep(retry_delay)
+                retry_delay = min(retry_delay * 2, 30)
+                try:
+                    self.subscribe_redis()
+                except Exception as reconnect_error:
+                    log_engine.warning(f'redis reconnect failed: {reconnect_error}')
+                continue
 
-            socketio.sleep(10)
-    finally:
-        # if the loop ever exits (including via an exception above escaping the
-        # inner try, or `close` being set), clear the flag so the next client to
-        # connect respawns the pusher instead of finding a dead thread forever
-        with thread_lock:
-            thread = None
+            if data:
+                if type(data[2]) is not int:
+                    try:
+                        redis_data = json.loads(data[2].decode('UTF-8'))
+                        ty = redis_data.get('type', 0)
+                        if ty == 4:
+                            data_queue.add_view_data(redis_data)
+                        elif ty == 1:
+                            data_queue.add_detail_data(redis_data)
+                    except Exception as e:
+                        # a single malformed message should not take the subscriber thread down
+                        log_engine.warning(f'failed to parse account redis message: {e}')
 
-
-@socketio.on('disconnect', namespace="/account_info")
-def disconnect():
-    pass
-
+data_service = DataService()
 
 if __name__ == '__main__':
-    # app.run(port=8000)
-    # app.run(host='0.0.0.0', port=8020, debug=False)
-    socketio.run(app, host='0.0.0.0', port=8020)
-    # server = pywsgi.WSGIServer(('0.0.0.0', 8000), app)
-    # server.serve_forever()
+    print('run')
