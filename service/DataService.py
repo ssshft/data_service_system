@@ -104,7 +104,10 @@ class DataService:
     
     def get_okx_max_loan(self, account_name):
         return self.data_base.get_okx_all_max_loan_data(account_name)
-    
+
+    def get_net_value_data(self, account_id, start_time, end_time):
+        return self.data_base.get_net_value_data(account_id, start_time, end_time)
+
     def get_binance_funding_rate(self, start_time, end_time):
         return self.data_base.get_binance_all_funding_rate_data(start_time, end_time)
 
