@@ -14,6 +14,7 @@ if path not in sys.path:
 from database.MysqlManager import MysqlManager
 from service.DataServiceConfig import DataServieConfig
 from dataevent.DataQueue import data_queue
+from tools.LogEngine import log_engine
 
 
 class DataService:
@@ -45,21 +46,31 @@ class DataService:
         self.data_base = MysqlManager(database_host, database_port, database_user, database_password, database_name)
 
     def connect_redis(self):
-        host = self.config.get_redis_host()
-        port = self.config.get_redis_port()
-        password = self.config.get_redis_password()
-        physical_pub_channel = self.config.get_redis_physical_sub_channel()
-        overview_pub_channel = self.config.get_redis_overview_pub_channel()
+        # cache connection params on the instance so a dropped connection can be
+        # re-established later from receive_redis_msg() without re-reading config
+        self.redis_host = self.config.get_redis_host()
+        self.redis_port = self.config.get_redis_port()
+        self.redis_password = self.config.get_redis_password()
+        self.physical_pub_channel = self.config.get_redis_physical_sub_channel()
+        self.overview_pub_channel = self.config.get_redis_overview_pub_channel()
 
-        if len(password) > 0:
-            self.re = redis.StrictRedis(host=host, port=port, password=password)
-        else:
-            self.re = redis.StrictRedis(host=host, port=port)
-        self.pub = self.re.pubsub()
-        self.pub.subscribe(physical_pub_channel)
-        self.pub.subscribe(overview_pub_channel)
-        self.receive_thread = threading.Thread(target=self.receive_redis_msg)
+        self.subscribe_redis()
+        self.receive_thread = threading.Thread(target=self.receive_redis_msg, daemon=True)
         self.receive_thread.start()
+
+    def subscribe_redis(self):
+        # (re)create the redis connection and pubsub subscription; used both for the
+        # initial connect and for reconnecting after the connection drops
+        if len(self.redis_password) > 0:
+            self.re = redis.StrictRedis(host=self.redis_host, port=self.redis_port,
+                                         password=self.redis_password,
+                                         socket_timeout=5, socket_connect_timeout=5)
+        else:
+            self.re = redis.StrictRedis(host=self.redis_host, port=self.redis_port,
+                                         socket_timeout=5, socket_connect_timeout=5)
+        self.pub = self.re.pubsub()
+        self.pub.subscribe(self.physical_pub_channel)
+        self.pub.subscribe(self.overview_pub_channel)
 
     def get_gateio_all_market_max_loan_data(self):
         return self.data_base.get_gateio_all_market_max_loan_data()
@@ -137,17 +148,33 @@ class DataService:
         return self.data_base.get_bybit_all_kline_data(start_time, end_time)
     
     def receive_redis_msg(self):
+        retry_delay = 1
         while True:
-            data = self.pub.parse_response()
+            try:
+                data = self.pub.parse_response()
+                retry_delay = 1  # reset backoff once the connection is healthy again
+            except Exception as e:
+                log_engine.warning(f'redis pubsub connection error, will retry in {retry_delay}s: {e}')
+                sleep(retry_delay)
+                retry_delay = min(retry_delay * 2, 30)
+                try:
+                    self.subscribe_redis()
+                except Exception as reconnect_error:
+                    log_engine.warning(f'redis reconnect failed: {reconnect_error}')
+                continue
+
             if data:
                 if type(data[2]) is not int:
-                    redis_data = json.loads(data[2].decode('UTF-8'))
-                    ty = redis_data.get('type', 0)
-                    if ty == 4:
-                        data_queue.add_view_data(redis_data)
-                    elif ty == 1:
-                        data_queue.add_detail_data(redis_data)
-                    
+                    try:
+                        redis_data = json.loads(data[2].decode('UTF-8'))
+                        ty = redis_data.get('type', 0)
+                        if ty == 4:
+                            data_queue.add_view_data(redis_data)
+                        elif ty == 1:
+                            data_queue.add_detail_data(redis_data)
+                    except Exception as e:
+                        # a single malformed message should not take the subscriber thread down
+                        log_engine.warning(f'failed to parse account redis message: {e}')
 
 data_service = DataService()
 
