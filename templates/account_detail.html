@@ -8,9 +8,16 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'datatables/datatables.min.css') }}"></link>
 <script type="text/javascript" language="javascript" src="{{ url_for('static', filename = 'socketio/socket.io.min.js') }}"></script>
 <script type="text/javascript" language="javascript" src="{{ url_for('static', filename = 'js/utility.js') }}"></script>
+<link href="{{ url_for('static', filename = 'bootstrap/datetimepicker/css/bootstrap-datetimepicker.min.css') }}" rel="stylesheet" media="screen">
+<script type="text/javascript" language="javascript" src="{{ url_for('static', filename = 'bootstrap/datetimepicker/js/bootstrap-datetimepicker.js') }}" charset="UTF-8"></script>
+<script type="text/javascript" language="javascript" src="{{ url_for('static', filename = 'bootstrap/datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js') }}" charset="UTF-8"></script>
+<script type="text/javascript" language="javascript" src="{{ url_for('static', filename = 'echarts/echarts.min.js') }}"></script>
 <script type="text/javascript" language="javascript" class="init">
+    var netValueChart = null;
+
     $(document).ready(function() {
         InitTableConfig();
+        initNetValueChart();
         var namespace = '/account_info';
         var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
 
@@ -523,6 +530,135 @@ function InitTableConfig() {
 
 }
 
+function initNetValueChart() {
+    $('#form_net_value_start_date').datetimepicker({
+        language: 'zh-CN',
+        format: 'yyyy-mm-dd',
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        todayHighlight: 1,
+        startView: 2,
+        minView: 2,
+        forceParse: 0
+    });
+
+    $('#form_net_value_end_date').datetimepicker({
+        language: 'zh-CN',
+        format: 'yyyy-mm-dd',
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        todayHighlight: 1,
+        startView: 2,
+        minView: 2,
+        forceParse: 0
+    });
+
+    // default to the trailing 30 days so the chart isn't empty on first view
+    var today = new Date();
+    var monthAgo = new Date();
+    monthAgo.setDate(monthAgo.getDate() - 30);
+    $('#netValueStartDate').val(formatDateForPicker(monthAgo));
+    $('#netValueEndDate').val(formatDateForPicker(today));
+
+    netValueChart = echarts.init(document.getElementById('netValueChart'));
+    window.addEventListener('resize', function () {
+        if (netValueChart) {
+            netValueChart.resize();
+        }
+    });
+
+    loadNetValueChart();
+}
+
+function formatDateForPicker(date) {
+    var pad = function (n) { return n < 10 ? '0' + n : n; };
+    return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
+}
+
+function loadNetValueChart() {
+    var accountId = $('#accountId').val();
+    var startDate = $('#netValueStartDate').val();
+    var endDate = $('#netValueEndDate').val();
+
+    if (!accountId || !startDate || !endDate) {
+        return;
+    }
+
+    $.ajax({
+        type: 'GET',
+        url: '/get_net_value_data',
+        data: {account: accountId, start: startDate, end: endDate},
+        dataType: 'json',
+        success: function (res) {
+            renderNetValueChart(res['value'] || []);
+        },
+        error: function () {
+            renderNetValueChart([]);
+        }
+    });
+}
+
+function renderNetValueChart(rows) {
+    if (!netValueChart) {
+        return;
+    }
+
+    if (!rows.length) {
+        netValueChart.clear();
+        netValueChart.setOption({
+            title: {
+                text: '所选时间范围内没有净值数据',
+                left: 'center',
+                top: 'middle',
+                textStyle: {fontSize: 13, color: '#adb5bd', fontWeight: 'normal'}
+            }
+        });
+        return;
+    }
+
+    // rows: [[account_id, net_value, daily_return, record_time], ...],
+    // already ordered oldest-first by /get_net_value_data
+    var dates = [];
+    var netValues = [];
+    var dailyReturnsPct = [];
+    for (var i = 0; i < rows.length; i++) {
+        dates.push(rows[i][3]);
+        netValues.push(rows[i][1]);
+        dailyReturnsPct.push((rows[i][2] * 100).toFixed(2));
+    }
+
+    netValueChart.setOption({
+        tooltip: {trigger: 'axis'},
+        legend: {data: ['净值', '日收益率(%)'], top: 0},
+        grid: {left: 60, right: 60, top: 40, bottom: 30},
+        xAxis: {type: 'category', data: dates, boundaryGap: false},
+        yAxis: [
+            {type: 'value', name: '净值', scale: true},
+            {type: 'value', name: '日收益率(%)', scale: true, splitLine: {show: false}}
+        ],
+        series: [
+            {
+                name: '净值',
+                type: 'line',
+                data: netValues,
+                smooth: true,
+                showSymbol: false,
+                yAxisIndex: 0,
+                areaStyle: {opacity: 0.08}
+            },
+            {
+                name: '日收益率(%)',
+                type: 'bar',
+                data: dailyReturnsPct,
+                yAxisIndex: 1,
+                barMaxWidth: 6
+            }
+        ]
+    }, true);
+}
+
 
 </script>
 {% endblock %}
@@ -613,7 +749,10 @@ function InitTableConfig() {
 
 <ul class="nav nav-tabs section-tabs">
     <li class="nav-item">
-    <a class="nav-link active" aria-current="page" href="#exposureInfo" data-toggle="tab">Exposure</a>
+    <a class="nav-link active" aria-current="page" href="#netValueInfo" data-toggle="tab">净值走势</a>
+    </li>
+    <li class="nav-item">
+    <a class="nav-link" href="#exposureInfo" data-toggle="tab">Exposure</a>
     </li>
     <li class="nav-item">
     <a class="nav-link" href="#totalAssetInfo" data-toggle="tab">TotalAsset</a>
@@ -636,7 +775,32 @@ function InitTableConfig() {
 </ul>
 
 <div class="tab-content">
-    <div class="tab-pane active" id="exposureInfo">
+    <div class="tab-pane active" id="netValueInfo">
+        <div class="panel-card">
+            <div class="row align-items-end mb-3">
+                <div class="col-auto">
+                    <label class="control-label d-block mb-1" style="font-size: .8rem; color: #868e96;">开始日期</label>
+                    <div class="input-group date" id="form_net_value_start_date">
+                        <input class="form-control" size="10" type="text" id="netValueStartDate" readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <label class="control-label d-block mb-1" style="font-size: .8rem; color: #868e96;">结束日期</label>
+                    <div class="input-group date" id="form_net_value_end_date">
+                        <input class="form-control" size="10" type="text" id="netValueEndDate" readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <button onclick="loadNetValueChart()" class="btn btn-sm btn-outline-primary">查询</button>
+                </div>
+            </div>
+            <div id="netValueChart" style="width: 100%; height: 340px;"></div>
+        </div>
+    </div>
+
+    <div class="tab-pane" id="exposureInfo">
         <div class="panel-card">
             <table id="exposure_form" class="display table table-hover" style="width: 100%;"></table>
         </div>
