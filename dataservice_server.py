@@ -16,6 +16,7 @@ from dataevent.DataQueue import data_queue
 from model.models import query_user, User
 from service.DataService import data_service
 from tools.Utility import get_program_path
+from tools.LogEngine import log_engine
 
 app = Flask(__name__)
 
@@ -259,16 +260,29 @@ def connect():
 
 
 def background_thread():
-    while not close:
-        view_data = data_queue.get_view_data()
-        if view_data:
-            socketio.emit('account_info_view', {'text': view_data}, namespace='/account_info')
+    global thread
+    try:
+        while not close:
+            try:
+                view_data = data_queue.get_view_data()
+                if view_data:
+                    socketio.emit('account_info_view', {'text': view_data}, namespace='/account_info')
 
-        detail_data = data_queue.get_detail_data()
-        if detail_data:
-            socketio.emit('account_info_detail', {'text': detail_data}, namespace='/account_info')
-            
-        socketio.sleep(10)
+                detail_data = data_queue.get_detail_data()
+                if detail_data:
+                    socketio.emit('account_info_detail', {'text': detail_data}, namespace='/account_info')
+            except Exception as e:
+                # a single bad push (malformed data, emit failure, ...) should not
+                # kill the only background pusher for this namespace
+                log_engine.warning(f'account_info background push failed: {e}')
+
+            socketio.sleep(10)
+    finally:
+        # if the loop ever exits (including via an exception above escaping the
+        # inner try, or `close` being set), clear the flag so the next client to
+        # connect respawns the pusher instead of finding a dead thread forever
+        with thread_lock:
+            thread = None
 
 
 @socketio.on('disconnect', namespace="/account_info")
