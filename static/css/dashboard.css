@@ -105,3 +105,203 @@ body {
   border-color: transparent;
   box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
 }
+
+/* ==========================================================================
+   Account monitor / account detail — shared dashboard components
+   ========================================================================== */
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin: 1.25rem 0 1rem;
+}
+
+.page-header h4 {
+  margin: 0;
+  font-weight: 600;
+}
+
+.page-subtitle {
+  color: #6c757d;
+  font-size: .85rem;
+  margin-top: .15rem;
+}
+
+.back-link {
+  display: inline-block;
+  font-size: .8rem;
+  color: #495057;
+  text-decoration: none;
+  margin-bottom: .25rem;
+}
+
+.back-link:hover {
+  color: #007bff;
+  text-decoration: none;
+}
+
+/* connection status pill: shows whether the /account_info socket is
+   currently connected, and when the last push was received */
+.conn-status {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .8rem;
+  padding: .35rem .75rem;
+  border-radius: 999px;
+  background: #f1f3f5;
+  color: #495057;
+  white-space: nowrap;
+}
+
+.conn-status .conn-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #adb5bd;
+  flex: none;
+}
+
+.conn-status.is-online {
+  background: #e9f9ec;
+  color: #1c7a30;
+}
+
+.conn-status.is-online .conn-dot {
+  background: #2fb344;
+  box-shadow: 0 0 0 3px rgba(47, 179, 68, .18);
+}
+
+.conn-status.is-offline {
+  background: #fdecec;
+  color: #c92a2a;
+}
+
+.conn-status.is-offline .conn-dot {
+  background: #e03131;
+}
+
+.conn-status .conn-updated {
+  opacity: .75;
+  font-size: .75rem;
+  margin-left: .15rem;
+}
+
+/* summary stat cards used on the overview and detail pages */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: .75rem;
+  margin-bottom: 1.25rem;
+}
+
+.stat-card {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: .9rem 1.1rem;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+}
+
+.stat-card .stat-label {
+  display: block;
+  font-size: .72rem;
+  color: #868e96;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  margin-bottom: .35rem;
+}
+
+.stat-card .stat-value {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #212529;
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+/* generic card wrapper for tables/sections */
+.panel-card {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+}
+
+/* account-detail profile header */
+.detail-header {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+}
+
+.detail-header .detail-field-label {
+  display: block;
+  font-size: .7rem;
+  color: #868e96;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+
+.detail-header .detail-field-value {
+  font-size: .95rem;
+  font-weight: 600;
+  color: #212529;
+  word-break: break-word;
+}
+
+/* generic percentage bar (purely a visual aid, not a risk judgement) */
+.util-bar-track {
+  background: #e9ecef;
+  border-radius: 999px;
+  height: 6px;
+  width: 100%;
+  overflow: hidden;
+  margin-top: .4rem;
+}
+
+.util-bar-fill {
+  height: 100%;
+  background: #339af0;
+  border-radius: 999px;
+  transition: width .3s ease;
+}
+
+/* nicer section tabs on account_detail */
+.nav-tabs.section-tabs {
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 1rem;
+}
+
+.nav-tabs.section-tabs .nav-link {
+  border: none;
+  color: #868e96;
+  font-size: .85rem;
+  padding: .55rem 1rem;
+}
+
+.nav-tabs.section-tabs .nav-link.active {
+  color: #007bff;
+  border-bottom: 2px solid #007bff;
+  background: transparent;
+}
+
+/* datatable polish shared by the account pages */
+table.dataTable {
+  font-size: .85rem;
+}
+
+table.dataTable thead th {
+  border-top: none;
+  color: #495057;
+  font-weight: 600;
+  white-space: nowrap;
+}
