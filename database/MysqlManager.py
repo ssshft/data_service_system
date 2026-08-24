@@ -608,15 +608,20 @@ class MysqlManager():
                                 db=self.data_base_name, charset='utf8')
         cursor = my_db.cursor()
         data = []
-        sql = f"select * from t_rad_net_value where account_id='{account_id}' and record_time>='{start_time}' and record_time<'{end_time}' order by record_time desc"
+        # ordered ascending (oldest first) so callers can plot it straight onto a
+        # chart's x-axis without having to reverse it themselves
+        sql = f"select * from t_rad_net_value where account_id='{account_id}' and record_time>='{start_time}' and record_time<'{end_time}' order by record_time asc"
         cursor.execute(sql)
         results = cursor.fetchall()
         for res in results:
-            account_id = res[1]
+            row_account_id = res[1]
             net_value = float(res[2])
             daily_return = float(res[3])
-            record_time = res[4]
-            data.append([account_id, net_value, daily_return, record_time])
+            # record_time comes back as a date/datetime object, which the JSON
+            # response can't serialize on its own; format it like the other
+            # timestamp fields in this file so /get_net_value_data doesn't 500
+            record_time = res[4].strftime('%Y-%m-%d %H:%M:%S') if res[4] else ''
+            data.append([row_account_id, net_value, daily_return, record_time])
         cursor.close()
         my_db.close()
         return data
