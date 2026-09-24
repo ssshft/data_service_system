@@ -157,6 +157,7 @@ class DataService:
                 data = self.pub.parse_response()
                 retry_delay = 1  # reset backoff once the connection is healthy again
             except Exception as e:
+                print('parse response 2222222')
                 log_engine.warning(f'redis pubsub connection error, will retry in {retry_delay}s: {e}')
                 sleep(retry_delay)
                 retry_delay = min(retry_delay * 2, 30)
