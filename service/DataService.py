@@ -167,6 +167,8 @@ class DataService:
                 continue
 
             if data:
+                print('11111111111111111')
+                print(data)
                 if type(data[2]) is not int:
                     try:
                         redis_data = json.loads(data[2].decode('UTF-8'))
