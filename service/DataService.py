@@ -62,10 +62,8 @@ class DataService:
 
     def subscribe_redis(self):
 
-        log_engine.warning(
-            f'subscribe_redis called! thread={threading.current_thread().name} '
-            f'time={time.time()}\n' + ''.join(traceback.format_stack())
-        )
+        log_engine.warning(f'subscribe_redis called! thread={threading.current_thread().name}')
+    
 
         # (re)create the redis connection and pubsub subscription; used both for the
         # initial connect and for reconnecting after the connection drops
