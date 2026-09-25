@@ -83,24 +83,15 @@
                         if (JSON.stringify(mainFormChecked) != '{}') {
                             var productName = '';
                             var accountId = '';
-                            var strategyId = '';
-                            var traderId = '';
                             var baseAsset = '';
                             var time = '';
                             var updateTimeD = '';
-                            var updateTimeS = '';
                             var netValueD = '';
-                            var netValueS = '';
                             var netValueGrowthRateD = '';
-                            var netValueGrowthRateS = '';
                             var maxValueToLoanRatioD = '';
-                            var maxValueToLoanRatioS = '';
                             var maxRealLeverageD = '';
-                            var maxRealLeverageS = '';
                             var riskExposureD = '';
-                            var riskExposureS = '';
                             var underwayOrderValueD = '';
-                            var underwayOrderValueS = '';
                             var verifyRisk = '';
                             var utilization = '';
                             // console.log(mainFormChecked);
@@ -110,47 +101,41 @@
                                 var itemValue = mainItem.value;
                                 if (itemKey == 'ProductName') {
                                     productName = itemValue;
-                                } else if (itemKey == 'AccountID') {
+                                } 
+                                else if (itemKey == 'AccountID') {
                                     accountId = itemValue;
-                                } else if (itemKey == 'StrategyID') {
-                                    strategyId = itemValue;
-                                } else if (itemKey == 'TraderID') {
-                                    traderId = itemValue;
-                                } else if (itemKey == 'BaseAsset') {
+                                }   
+                                else if (itemKey == 'BaseAsset') {
                                     baseAsset = itemValue;
-                                } else if (itemKey == 'Time') {
+                                } 
+                                else if (itemKey == 'Time') {
                                     time = itemValue;
-                                } else if (itemKey == 'UpdateTime_D') {
+                                } 
+                                else if (itemKey == 'UpdateTime_D') {
                                     updateTimeD = itemValue;
-                                } else if (itemKey == 'UpdateTime_S') {
-                                    updateTimeS = itemValue;
-                                } else if (itemKey == 'NetValue_D') {
+                                }
+                                else if (itemKey == 'NetValue_D') {
                                     netValueD = itemValue;
-                                } else if (itemKey == 'NetValue_S') {
-                                    netValueS = itemValue;
-                                } else if (itemKey == 'NetValueGrowthRate_D') {
+                                }
+                                else if (itemKey == 'NetValueGrowthRate_D') {
                                     netValueGrowthRateD = itemValue;
-                                } else if (itemKey == 'NetValueGrowthRate_S') {
-                                    netValueGrowthRateS = itemValue;
-                                } else if (itemKey == 'MaxValueToLoanRatio_D') {
+                                }
+                                else if (itemKey == 'MaxValueToLoanRatio_D') {
                                     maxValueToLoanRatioD = itemValue;
-                                } else if (itemKey == 'MaxValueToLoanRatio_S') {
-                                    maxValueToLoanRatioS = itemValue;
-                                } else if (itemKey == 'MaxRealLeverage_D') {
+                                }
+                                else if (itemKey == 'MaxRealLeverage_D') {
                                     maxRealLeverageD = itemValue;
-                                } else if (itemKey == 'MaxRealLeverage_S') {
-                                    maxRealLeverageS = itemValue;
-                                } else if (itemKey == 'RiskExposure_D') {
+                                }
+                                else if (itemKey == 'RiskExposure_D') {
                                     riskExposureD = itemValue;
-                                } else if (itemKey == 'RiskExposure_S') {
-                                    riskExposureS = itemValue;
-                                } else if (itemKey == 'UnderwayOrderValue_D') {
+                                }
+                                else if (itemKey == 'UnderwayOrderValue_D') {
                                     underwayOrderValueD = itemValue;
-                                } else if (itemKey == 'UnderwayOrderValue_S') {
-                                    underwayOrderValueS = itemValue;
-                                } else if (itemKey == 'VerifyRisk') {
+                                }
+                                else if (itemKey == 'VerifyRisk') {
                                     verifyRisk = itemValue;
-                                } else if (itemKey == 'Utilization') {
+                                } 
+                                else if (itemKey == 'Utilization') {
                                     utilization = itemValue;
                                 }
                             }
@@ -160,17 +145,15 @@
                             // and .stat-row in the content block below)
                             $('#fieldProductName').text(productName || '--');
                             $('#fieldAccountId').text(accountId || '--');
-                            $('#fieldStrategyId').text(strategyId || '--');
-                            $('#fieldTraderId').text(traderId || '--');
                             $('#fieldBaseAsset').text(baseAsset || '--');
                             $('#fieldTime').text(time || '--');
-                            $('#fieldUpdateTime').text((updateTimeD || '--') + ' / ' + (updateTimeS || '--'));
-                            $('#fieldNetValue').text((netValueD || '--') + ' / ' + (netValueS || '--'));
-                            $('#fieldNetValueGrowthRate').text((netValueGrowthRateD || '--') + ' / ' + (netValueGrowthRateS || '--'));
-                            $('#fieldMaxValueToLoanRatio').text((maxValueToLoanRatioD || '--') + ' / ' + (maxValueToLoanRatioS || '--'));
-                            $('#fieldMaxRealLeverage').text((maxRealLeverageD || '--') + ' / ' + (maxRealLeverageS || '--'));
-                            $('#fieldRiskExposure').text((riskExposureD || '--') + ' / ' + (riskExposureS || '--'));
-                            $('#fieldUnderwayOrderValue').text((underwayOrderValueD || '--') + ' / ' + (underwayOrderValueS || '--'));
+                            $('#fieldUpdateTime').text(updateTimeD || '--');
+                            $('#fieldNetValue').text(netValueD || '--');
+                            $('#fieldNetValueGrowthRate').text(netValueGrowthRateD || '--');
+                            $('#fieldMaxValueToLoanRatio').text(maxValueToLoanRatioD || '--');
+                            $('#fieldMaxRealLeverage').text(maxRealLeverageD || '--');
+                            $('#fieldRiskExposure').text(riskExposureD || '--');
+                            $('#fieldUnderwayOrderValue').text(underwayOrderValueD || '--');
                             $('#fieldVerifyRisk').text(verifyRisk || '--');
                             $('#fieldUtilization').text(utilization || '--');
 
@@ -194,22 +177,17 @@
                                 var asset = perpetualAssetItem.asset.split('|')[0];
                                 var availableAmount = perpetualAssetItem.availableAmount.split('|')[0];
                                 var floatAmount_d = perpetualAssetItem.floatAmount_d.split('|')[0];
-                                var floatAmount_s = perpetualAssetItem.floatAmount_s.split('|')[0];
                                 var frozenAmount_d = perpetualAssetItem.frozenAmount_d.split('|')[0];
-                                var frozenAmount_s = perpetualAssetItem.frozenAmount_s.split('|')[0];
                                 var frozenMarginAmount_d = perpetualAssetItem.frozenMarginAmount_d.split('|')[0];
-                                var frozenMarginAmount_s = perpetualAssetItem.frozenMarginAmount_s.split('|')[0];
                                 var initialAmount = perpetualAssetItem.initialAmount.split('|')[0];
                                 var marginAmount_d = perpetualAssetItem.marginAmount_d.split('|')[0];
-                                var marginAmount_s = perpetualAssetItem.marginAmount_s.split('|')[0];
                                 var netAmount = perpetualAssetItem.netAmount.split('|')[0];
                                 var positionValue = perpetualAssetItem.positionValue.split('|')[0];
                                 var realLeverageRatio = perpetualAssetItem.realLeverageRatio.split('|')[0];
                                 var totalAmount_d = perpetualAssetItem.totalAmount_d.split('|')[0];
-                                var totalAmount_s = perpetualAssetItem.totalAmount_s.split('|')[0];
                                 var transferAmount = perpetualAssetItem.transferAmount.split('|')[0];
                                 var transferFrozenAmount = perpetualAssetItem.transferFrozenAmount.split('|')[0];
-                                var data = {'asset': asset, 'availableAmount': availableAmount, 'floatAmount_d': floatAmount_d, 'floatAmount_s': floatAmount_s, 'frozenAmount_d': frozenAmount_d, 'frozenAmount_s': frozenAmount_s, 'frozenMarginAmount_d': frozenMarginAmount_d, 'frozenMarginAmount_s': frozenMarginAmount_s, 'initialAmount': initialAmount, 'marginAmount_d': marginAmount_d, 'marginAmount_s': marginAmount_s, 'netAmount': netAmount, 'positionValue': positionValue, 'realLeverageRatio': realLeverageRatio, 'totalAmount_d': totalAmount_d, 'totalAmount_s': totalAmount_s, 'transferAmount': transferAmount, 'transferFrozenAmount': transferFrozenAmount};
+                                var data = {'asset': asset, 'availableAmount': availableAmount, 'floatAmount_d': floatAmount_d, 'frozenAmount_d': frozenAmount_d, 'frozenMarginAmount_d': frozenMarginAmount_d, 'initialAmount': initialAmount, 'marginAmount_d': marginAmount_d, 'netAmount': netAmount, 'positionValue': positionValue, 'realLeverageRatio': realLeverageRatio, 'totalAmount_d': totalAmount_d, 'transferAmount': transferAmount, 'transferFrozenAmount': transferFrozenAmount};
                                 perpetualAssetJson.push(data);
                                 RefreshTable('#perpetual_asset', perpetualAssetJson);
                             }
@@ -222,22 +200,15 @@
                                 var perpetualPositionItem = perpetualPositionChecked[positionK];
                                 var instrumentKey = perpetualPositionItem.instrumentKey;
                                 var netPosition_d = perpetualPositionItem.netPosition_d.split('|')[0];
-                                var netPosition_s = perpetualPositionItem.netPosition_s.split('|')[0];
                                 var netAvgPrice_d = perpetualPositionItem.netAvgPrice_d.split('|')[0];
-                                var netAvgPrice_s = perpetualPositionItem.netAvgPrice_s.split('|')[0];
                                 var floatAmount_d = perpetualPositionItem.floatAmount_d.split('|')[0];
-                                var floatAmount_s = perpetualPositionItem.floatAmount_s.split('|')[0];
                                 var liquidationPrice_d = perpetualPositionItem.liquidationPrice_d.split('|')[0];
                                 var underwayAbPosition = perpetualPositionItem.underwayAbPosition.split('|')[0];
                                 var underwayNetPosition = perpetualPositionItem.underwayNetPosition.split('|')[0];
-                                var data = {'instrumentKey': instrumentKey, 'netPosition_d': netPosition_d, 'netPosition_s': netPosition_s, 'netAvgPrice_d': netAvgPrice_d, 'netAvgPrice_s': netAvgPrice_s, 'floatAmount_d': floatAmount_d, 'floatAmount_s': floatAmount_s, 'liquidationPrice_d': liquidationPrice_d, 'underwayAbPosition': underwayAbPosition, 'underwayNetPosition': underwayNetPosition};
+                                var data = {'instrumentKey': instrumentKey, 'netPosition_d': netPosition_d, 'netAvgPrice_d': netAvgPrice_d, 'floatAmount_d': floatAmount_d, 'liquidationPrice_d': liquidationPrice_d, 'underwayAbPosition': underwayAbPosition, 'underwayNetPosition': underwayNetPosition};
                                 perpetualPositionJson.push(data);
                                 RefreshTable('#perpetual_position', perpetualPositionJson);
                             }
-                        }
-
-                        var savingAssetChecked = account.SavingAssetChecked;
-                        if (JSON.stringify(savingAssetChecked) != '{}') {
                         }
 
                         var spotAssetChecked = account.SpotAssetChecked;
@@ -248,22 +219,17 @@
                                 var asset = spotAssetItem.asset.split('|')[0];
                                 var availableAmount = spotAssetItem.availableAmount.split('|')[0];
                                 var floatAmount_d = spotAssetItem.floatAmount_d.split('|')[0];
-                                var floatAmount_s = spotAssetItem.floatAmount_s.split('|')[0];
                                 var frozenAmount_d = spotAssetItem.frozenAmount_d.split('|')[0];
-                                var frozenAmount_s = spotAssetItem.frozenAmount_s.split('|')[0];
                                 var frozenMarginAmount_d = spotAssetItem.frozenMarginAmount_d.split('|')[0];
-                                var frozenMarginAmount_s = spotAssetItem.frozenMarginAmount_s.split('|')[0];
                                 var initialAmount = spotAssetItem.initialAmount.split('|')[0];
                                 var marginAmount_d = spotAssetItem.marginAmount_d.split('|')[0];
-                                var marginAmount_s = spotAssetItem.marginAmount_s.split('|')[0];
                                 var netAmount = spotAssetItem.netAmount.split('|')[0];
                                 var positionValue = spotAssetItem.positionValue.split('|')[0];
                                 var realLeverageRatio = spotAssetItem.realLeverageRatio.split('|')[0];
                                 var totalAmount_d = spotAssetItem.totalAmount_d.split('|')[0];
-                                var totalAmount_s = spotAssetItem.totalAmount_s.split('|')[0];
                                 var transferAmount = spotAssetItem.transferAmount.split('|')[0];
                                 var transferFrozenAmount = spotAssetItem.transferFrozenAmount.split('|')[0];
-                                var data = {'asset': asset, 'availableAmount': availableAmount, 'floatAmount_d': floatAmount_d, 'floatAmount_s': floatAmount_s, 'frozenAmount_d': frozenAmount_d, 'frozenAmount_s': frozenAmount_s, 'frozenMarginAmount_d': frozenMarginAmount_d, 'frozenMarginAmount_s': frozenMarginAmount_s, 'initialAmount': initialAmount, 'marginAmount_d': marginAmount_d, 'marginAmount_s': marginAmount_s, 'netAmount': netAmount, 'positionValue': positionValue, 'realLeverageRatio': realLeverageRatio, 'totalAmount_d': totalAmount_d, 'totalAmount_s': totalAmount_s, 'transferAmount': transferAmount, 'transferFrozenAmount': transferFrozenAmount};
+                                var data = {'asset': asset, 'availableAmount': availableAmount, 'floatAmount_d': floatAmount_d, 'frozenAmount_d': frozenAmount_d, 'frozenMarginAmount_d': frozenMarginAmount_d, 'initialAmount': initialAmount, 'marginAmount_d': marginAmount_d, 'netAmount': netAmount, 'positionValue': positionValue, 'realLeverageRatio': realLeverageRatio, 'totalAmount_d': totalAmount_d, 'transferAmount': transferAmount, 'transferFrozenAmount': transferFrozenAmount};
                                 spotAssetJson.push(data);
                                 RefreshTable('#spot_asset', spotAssetJson);
                             }
@@ -277,22 +243,17 @@
                                 var asset = totalAssetItem.asset.split('|')[0];
                                 var availableAmount = totalAssetItem.availableAmount.split('|')[0];
                                 var floatAmount_d = totalAssetItem.floatAmount_d.split('|')[0];
-                                var floatAmount_s = totalAssetItem.floatAmount_s.split('|')[0];
                                 var frozenAmount_d = totalAssetItem.frozenAmount_d.split('|')[0];
-                                var frozenAmount_s = totalAssetItem.frozenAmount_s.split('|')[0];
                                 var frozenMarginAmount_d = totalAssetItem.frozenMarginAmount_d.split('|')[0];
-                                var frozenMarginAmount_s = totalAssetItem.frozenMarginAmount_s.split('|')[0];
                                 var initialAmount = totalAssetItem.initialAmount.split('|')[0];
                                 var marginAmount_d = totalAssetItem.marginAmount_d.split('|')[0];
-                                var marginAmount_s = totalAssetItem.marginAmount_s.split('|')[0];
                                 var netAmount = totalAssetItem.netAmount.split('|')[0];
                                 var positionValue = totalAssetItem.positionValue.split('|')[0];
                                 var realLeverageRatio = totalAssetItem.realLeverageRatio.split('|')[0];
                                 var totalAmount_d = totalAssetItem.totalAmount_d.split('|')[0];
-                                var totalAmount_s = totalAssetItem.totalAmount_s.split('|')[0];
                                 var transferAmount = totalAssetItem.transferAmount.split('|')[0];
                                 var transferFrozenAmount = totalAssetItem.transferFrozenAmount.split('|')[0];
-                                var data = {'asset': asset, 'availableAmount': availableAmount, 'floatAmount_d': floatAmount_d, 'floatAmount_s': floatAmount_s, 'frozenAmount_d': frozenAmount_d, 'frozenAmount_s': frozenAmount_s, 'frozenMarginAmount_d': frozenMarginAmount_d, 'frozenMarginAmount_s': frozenMarginAmount_s, 'initialAmount': initialAmount, 'marginAmount_d': marginAmount_d, 'marginAmount_s': marginAmount_s, 'netAmount': netAmount, 'positionValue': positionValue, 'realLeverageRatio': realLeverageRatio, 'totalAmount_d': totalAmount_d, 'totalAmount_s': totalAmount_s, 'transferAmount': transferAmount, 'transferFrozenAmount': transferFrozenAmount};
+                                var data = {'asset': asset, 'availableAmount': availableAmount, 'floatAmount_d': floatAmount_d, 'frozenAmount_d': frozenAmount_d, 'frozenMarginAmount_d': frozenMarginAmount_d, 'initialAmount': initialAmount, 'marginAmount_d': marginAmount_d, 'netAmount': netAmount, 'positionValue': positionValue, 'realLeverageRatio': realLeverageRatio, 'totalAmount_d': totalAmount_d, 'transferAmount': transferAmount, 'transferFrozenAmount': transferFrozenAmount};
                                 totalAssetJson.push(data);
                                 RefreshTable('#total_asset', totalAssetJson);
                             }
@@ -306,22 +267,17 @@
                                 var asset = ufutureAssetItem.asset.split('|')[0];
                                 var availableAmount = ufutureAssetItem.availableAmount.split('|')[0];
                                 var floatAmount_d = ufutureAssetItem.floatAmount_d.split('|')[0];
-                                var floatAmount_s = ufutureAssetItem.floatAmount_s.split('|')[0];
                                 var frozenAmount_d = ufutureAssetItem.frozenAmount_d.split('|')[0];
-                                var frozenAmount_s = ufutureAssetItem.frozenAmount_s.split('|')[0];
                                 var frozenMarginAmount_d = ufutureAssetItem.frozenMarginAmount_d.split('|')[0];
-                                var frozenMarginAmount_s = ufutureAssetItem.frozenMarginAmount_s.split('|')[0];
                                 var initialAmount = ufutureAssetItem.initialAmount.split('|')[0];
                                 var marginAmount_d = ufutureAssetItem.marginAmount_d.split('|')[0];
-                                var marginAmount_s = ufutureAssetItem.marginAmount_s.split('|')[0];
                                 var netAmount = ufutureAssetItem.netAmount.split('|')[0];
                                 var positionValue = ufutureAssetItem.positionValue.split('|')[0];
                                 var realLeverageRatio = ufutureAssetItem.realLeverageRatio.split('|')[0];
                                 var totalAmount_d = ufutureAssetItem.totalAmount_d.split('|')[0];
-                                var totalAmount_s = ufutureAssetItem.totalAmount_s.split('|')[0];
                                 var transferAmount = ufutureAssetItem.transferAmount.split('|')[0];
                                 var transferFrozenAmount = ufutureAssetItem.transferFrozenAmount.split('|')[0];
-                                var data = {'asset': asset, 'availableAmount': availableAmount, 'floatAmount_d': floatAmount_d, 'floatAmount_s': floatAmount_s, 'frozenAmount_d': frozenAmount_d, 'frozenAmount_s': frozenAmount_s, 'frozenMarginAmount_d': frozenMarginAmount_d, 'frozenMarginAmount_s': frozenMarginAmount_s, 'initialAmount': initialAmount, 'marginAmount_d': marginAmount_d, 'marginAmount_s': marginAmount_s, 'netAmount': netAmount, 'positionValue': positionValue, 'realLeverageRatio': realLeverageRatio, 'totalAmount_d': totalAmount_d, 'totalAmount_s': totalAmount_s, 'transferAmount': transferAmount, 'transferFrozenAmount': transferFrozenAmount};
+                                var data = {'asset': asset, 'availableAmount': availableAmount, 'floatAmount_d': floatAmount_d, 'frozenAmount_d': frozenAmount_d, 'frozenMarginAmount_d': frozenMarginAmount_d, 'initialAmount': initialAmount, 'marginAmount_d': marginAmount_d, 'netAmount': netAmount, 'positionValue': positionValue, 'realLeverageRatio': realLeverageRatio, 'totalAmount_d': totalAmount_d, 'transferAmount': transferAmount, 'transferFrozenAmount': transferFrozenAmount};
                                 ufutureAssetJson.push(data);
                                 RefreshTable('#ufuture_asset', ufutureAssetJson);
                             }
@@ -334,15 +290,12 @@
                                 var ufuturePositionItem = uFuturePositionChecked[positionK];
                                 var instrumentKey = ufuturePositionItem.instrumentKey;
                                 var netPosition_d = ufuturePositionItem.netPosition_d.split('|')[0];
-                                var netPosition_s = ufuturePositionItem.netPosition_s.split('|')[0];
                                 var netAvgPrice_d = ufuturePositionItem.netAvgPrice_d.split('|')[0];
-                                var netAvgPrice_s = ufuturePositionItem.netAvgPrice_s.split('|')[0];
                                 var floatAmount_d = ufuturePositionItem.floatAmount_d.split('|')[0];
-                                var floatAmount_s = ufuturePositionItem.floatAmount_s.split('|')[0];
                                 var liquidationPrice_d = ufuturePositionItem.liquidationPrice_d.split('|')[0];
                                 var underwayAbPosition = ufuturePositionItem.underwayAbPosition.split('|')[0];
                                 var underwayNetPosition = ufuturePositionItem.underwayNetPosition.split('|')[0];
-                                var data = {'instrumentKey': instrumentKey, 'netPosition_d': netPosition_d, 'netPosition_s': netPosition_s, 'netAvgPrice_d': netAvgPrice_d, 'netAvgPrice_s': netAvgPrice_s, 'floatAmount_d': floatAmount_d, 'floatAmount_s': floatAmount_s, 'liquidationPrice_d': liquidationPrice_d, 'underwayAbPosition': underwayAbPosition, 'underwayNetPosition': underwayNetPosition};
+                                var data = {'instrumentKey': instrumentKey, 'netPosition_d': netPosition_d, 'netAvgPrice_d': netAvgPrice_d, 'floatAmount_d': floatAmount_d, 'liquidationPrice_d': liquidationPrice_d, 'underwayAbPosition': underwayAbPosition, 'underwayNetPosition': underwayNetPosition};
                                 ufuturePositionJson.push(data);
                                 RefreshTable('#ufuture_position', ufuturePositionJson);
                             }
@@ -385,20 +338,15 @@ function InitTableConfig() {
         "columns": [
             {data: 'asset', title: 'asset'},
             {data: 'totalAmount_d', title: 'totalAmount_d'},
-            {data: 'totalAmount_s', title: 'totalAmount_s'},
             {data: 'positionValue', title: 'positionValue'},
             {data: 'realLeverageRatio', title: 'realLeverageRatio'},
             {data: 'netAmount', title: 'netAmount'},
             {data: 'initialAmount', title: 'initialAmount'},
             {data: 'availableAmount', title: 'availableAmount'},
             {data: 'floatAmount_d', title: 'floatAmount_d'},
-            {data: 'floatAmount_s', title: 'floatAmount_s'},
             {data: 'frozenAmount_d', title: 'frozenAmount_d'},
-            {data: 'frozenAmount_s', title: 'frozenAmount_s'},
             {data: 'frozenMarginAmount_d', title: 'frozenMarginAmount_d'},
-            {data: 'frozenMarginAmount_s', title: 'frozenMarginAmount_s'},
             {data: 'marginAmount_d', title: 'marginAmount_d'},
-            {data: 'marginAmount_s', title: 'marginAmount_s'},
             {data: 'transferAmount', title: 'transferAmount'},
             {data: 'transferFrozenAmount', title: 'transferFrozenAmount'}
         ]
@@ -413,20 +361,15 @@ function InitTableConfig() {
         "columns": [
             {data: 'asset', title: 'asset'},
             {data: 'totalAmount_d', title: 'totalAmount_d'},
-            {data: 'totalAmount_s', title: 'totalAmount_s'},
             {data: 'positionValue', title: 'positionValue'},
             {data: 'realLeverageRatio', title: 'realLeverageRatio'},
             {data: 'netAmount', title: 'netAmount'},
             {data: 'initialAmount', title: 'initialAmount'},
             {data: 'availableAmount', title: 'availableAmount'},
             {data: 'floatAmount_d', title: 'floatAmount_d'},
-            {data: 'floatAmount_s', title: 'floatAmount_s'},
             {data: 'frozenAmount_d', title: 'frozenAmount_d'},
-            {data: 'frozenAmount_s', title: 'frozenAmount_s'},
             {data: 'frozenMarginAmount_d', title: 'frozenMarginAmount_d'},
-            {data: 'frozenMarginAmount_s', title: 'frozenMarginAmount_s'},
             {data: 'marginAmount_d', title: 'marginAmount_d'},
-            {data: 'marginAmount_s', title: 'marginAmount_s'},
             {data: 'transferAmount', title: 'transferAmount'},
             {data: 'transferFrozenAmount', title: 'transferFrozenAmount'}
         ]
@@ -441,20 +384,15 @@ function InitTableConfig() {
         "columns": [
             {data: 'asset', title: 'asset'},
             {data: 'totalAmount_d', title: 'totalAmount_d'},
-            {data: 'totalAmount_s', title: 'totalAmount_s'},
             {data: 'positionValue', title: 'positionValue'},
             {data: 'realLeverageRatio', title: 'realLeverageRatio'},
             {data: 'netAmount', title: 'netAmount'},
             {data: 'initialAmount', title: 'initialAmount'},
             {data: 'availableAmount', title: 'availableAmount'},
             {data: 'floatAmount_d', title: 'floatAmount_d'},
-            {data: 'floatAmount_s', title: 'floatAmount_s'},
             {data: 'frozenAmount_d', title: 'frozenAmount_d'},
-            {data: 'frozenAmount_s', title: 'frozenAmount_s'},
             {data: 'frozenMarginAmount_d', title: 'frozenMarginAmount_d'},
-            {data: 'frozenMarginAmount_s', title: 'frozenMarginAmount_s'},
             {data: 'marginAmount_d', title: 'marginAmount_d'},
-            {data: 'marginAmount_s', title: 'marginAmount_s'},
             {data: 'transferAmount', title: 'transferAmount'},
             {data: 'transferFrozenAmount', title: 'transferFrozenAmount'}
         ]
@@ -469,11 +407,8 @@ function InitTableConfig() {
         "columns": [
             {data: 'instrumentKey', title: 'instrumentKey'},
             {data: 'netPosition_d', title: 'netPosition_d'},
-            {data: 'netPosition_s', title: 'netPosition_s'},
             {data: 'netAvgPrice_d', title: 'netAvgPrice_d'},
-            {data: 'netAvgPrice_s', title: 'netAvgPrice_s'},
             {data: 'floatAmount_d', title: 'floatAmount_d'},
-            {data: 'floatAmount_s', title: 'floatAmount_s'},
             {data: 'liquidationPrice_d', title: 'liquidationPrice_d'},
             {data: 'underwayAbPosition', title: 'underwayAbPosition'},
             {data: 'underwayNetPosition', title: 'underwayNetPosition'}
@@ -489,20 +424,15 @@ function InitTableConfig() {
         "columns": [
             {data: 'asset', title: 'asset'},
             {data: 'totalAmount_d', title: 'totalAmount_d'},
-            {data: 'totalAmount_s', title: 'totalAmount_s'},
             {data: 'positionValue', title: 'positionValue'},
             {data: 'realLeverageRatio', title: 'realLeverageRatio'},
             {data: 'netAmount', title: 'netAmount'},
             {data: 'initialAmount', title: 'initialAmount'},
             {data: 'availableAmount', title: 'availableAmount'},
             {data: 'floatAmount_d', title: 'floatAmount_d'},
-            {data: 'floatAmount_s', title: 'floatAmount_s'},
             {data: 'frozenAmount_d', title: 'frozenAmount_d'},
-            {data: 'frozenAmount_s', title: 'frozenAmount_s'},
             {data: 'frozenMarginAmount_d', title: 'frozenMarginAmount_d'},
-            {data: 'frozenMarginAmount_s', title: 'frozenMarginAmount_s'},
             {data: 'marginAmount_d', title: 'marginAmount_d'},
-            {data: 'marginAmount_s', title: 'marginAmount_s'},
             {data: 'transferAmount', title: 'transferAmount'},
             {data: 'transferFrozenAmount', title: 'transferFrozenAmount'}
         ]
@@ -517,11 +447,8 @@ function InitTableConfig() {
         "columns": [
             {data: 'instrumentKey', title: 'instrumentKey'},
             {data: 'netPosition_d', title: 'netPosition_d'},
-            {data: 'netPosition_s', title: 'netPosition_s'},
             {data: 'netAvgPrice_d', title: 'netAvgPrice_d'},
-            {data: 'netAvgPrice_s', title: 'netAvgPrice_s'},
             {data: 'floatAmount_d', title: 'floatAmount_d'},
-            {data: 'floatAmount_s', title: 'floatAmount_s'},
             {data: 'liquidationPrice_d', title: 'liquidationPrice_d'},
             {data: 'underwayAbPosition', title: 'underwayAbPosition'},
             {data: 'underwayNetPosition', title: 'underwayNetPosition'}
@@ -689,14 +616,6 @@ function renderNetValueChart(rows) {
             <div class="detail-field-value" id="fieldAccountId">--</div>
         </div>
         <div class="col-6 col-md-2 mb-2">
-            <span class="detail-field-label">策略ID</span>
-            <div class="detail-field-value" id="fieldStrategyId">--</div>
-        </div>
-        <div class="col-6 col-md-2 mb-2">
-            <span class="detail-field-label">交易员ID</span>
-            <div class="detail-field-value" id="fieldTraderId">--</div>
-        </div>
-        <div class="col-6 col-md-2 mb-2">
             <span class="detail-field-label">基础资产</span>
             <div class="detail-field-value" id="fieldBaseAsset">--</div>
         </div>
@@ -709,31 +628,31 @@ function renderNetValueChart(rows) {
 
 <div class="stat-row">
     <div class="stat-card">
-        <span class="stat-label">更新时间 (D / S)</span>
+        <span class="stat-label">更新时间</span>
         <div class="stat-value" id="fieldUpdateTime" style="font-size: 1rem;">-- / --</div>
     </div>
     <div class="stat-card">
-        <span class="stat-label">净值 NetValue (D / S)</span>
+        <span class="stat-label">净值 NetValue</span>
         <div class="stat-value" id="fieldNetValue">-- / --</div>
     </div>
     <div class="stat-card">
-        <span class="stat-label">净值增长率 (D / S)</span>
+        <span class="stat-label">净值增长率</span>
         <div class="stat-value" id="fieldNetValueGrowthRate">-- / --</div>
     </div>
     <div class="stat-card">
-        <span class="stat-label">最大可借比例 (D / S)</span>
+        <span class="stat-label">最大可借比例</span>
         <div class="stat-value" id="fieldMaxValueToLoanRatio">-- / --</div>
     </div>
     <div class="stat-card">
-        <span class="stat-label">实际最大杠杆 (D / S)</span>
+        <span class="stat-label">实际最大杠杆</span>
         <div class="stat-value" id="fieldMaxRealLeverage">-- / --</div>
     </div>
     <div class="stat-card">
-        <span class="stat-label">风险敞口 RiskExposure (D / S)</span>
+        <span class="stat-label">风险敞口 RiskExposure</span>
         <div class="stat-value" id="fieldRiskExposure">-- / --</div>
     </div>
     <div class="stat-card">
-        <span class="stat-label">在途订单价值 (D / S)</span>
+        <span class="stat-label">在途订单价值</span>
         <div class="stat-value" id="fieldUnderwayOrderValue">-- / --</div>
     </div>
     <div class="stat-card">
