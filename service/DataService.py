@@ -173,6 +173,16 @@ class DataService:
                     log_engine.warning(f'redis reconnect failed: {reconnect_error}')
                 continue
 
+
+
+            if data and data[0] == b'subscribe':
+                conn = self.pub.connection
+                sock = getattr(conn, '_sock', None)
+                fd = sock.fileno() if sock else None
+                log_engine.warning(f'SUBSCRIBE rcv, conn_id={id(conn)} sock_id={id(sock)} fd={fd} '
+                                f'count={data[2]}')
+
+
             if data:
                 print('11111111111111111')
                 print(data)
