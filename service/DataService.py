@@ -1,6 +1,7 @@
 import json
 import re
 import threading
+import traceback
 import os
 import sys
 from datetime import datetime, timedelta
@@ -59,6 +60,12 @@ class DataService:
         self.receive_thread.start()
 
     def subscribe_redis(self):
+
+        log_engine.warning(
+            f'subscribe_redis called! thread={threading.current_thread().name} '
+            f'time={time.time()}\n' + ''.join(traceback.format_stack())
+        )
+
         # (re)create the redis connection and pubsub subscription; used both for the
         # initial connect and for reconnecting after the connection drops
         if len(self.redis_password) > 0:
@@ -166,12 +173,6 @@ class DataService:
                 except Exception as reconnect_error:
                     log_engine.warning(f'redis reconnect failed: {reconnect_error}')
                 continue
-
-
-
-            if data[0] == b'subscribe':
-                    log_engine.warning(f'SUBSCRIBE RCV channel={data[1]} count={data[2]} '
-                                    f'conn={id(self.pub.connection)}')
 
             if data:
                 print('11111111111111111')
