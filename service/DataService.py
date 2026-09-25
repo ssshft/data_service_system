@@ -163,7 +163,6 @@ class DataService:
                 data = self.pub.parse_response()
                 retry_delay = 1  # reset backoff once the connection is healthy again
             except Exception as e:
-                print('parse response 2222222')
                 log_engine.warning(f'redis pubsub connection error, will retry in {retry_delay}s: {e}')
                 sleep(retry_delay)
                 retry_delay = min(retry_delay * 2, 30)
@@ -173,19 +172,7 @@ class DataService:
                     log_engine.warning(f'redis reconnect failed: {reconnect_error}')
                 continue
 
-
-
-            if data and data[0] == b'subscribe':
-                conn = self.pub.connection
-                sock = getattr(conn, '_sock', None)
-                fd = sock.fileno() if sock else None
-                log_engine.warning(f'SUBSCRIBE rcv, conn_id={id(conn)} sock_id={id(sock)} fd={fd} '
-                                f'count={data[2]}')
-
-
             if data:
-                print('11111111111111111')
-                print(data)
                 if type(data[2]) is not int:
                     try:
                         redis_data = json.loads(data[2].decode('UTF-8'))
