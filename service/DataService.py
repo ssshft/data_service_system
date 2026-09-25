@@ -167,6 +167,12 @@ class DataService:
                     log_engine.warning(f'redis reconnect failed: {reconnect_error}')
                 continue
 
+
+
+            if data[0] == b'subscribe':
+                    log_engine.warning(f'SUBSCRIBE RCV channel={data[1]} count={data[2]} '
+                                    f'conn={id(self.pub.connection)}')
+
             if data:
                 print('11111111111111111')
                 print(data)
