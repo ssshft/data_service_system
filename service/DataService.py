@@ -70,10 +70,10 @@ class DataService:
         if len(self.redis_password) > 0:
             self.re = redis.StrictRedis(host=self.redis_host, port=self.redis_port,
                                          password=self.redis_password,
-                                         socket_timeout=5, socket_connect_timeout=5)
+                                         socket_timeout=None, socket_connect_timeout=5, socket_keepalive=True)
         else:
             self.re = redis.StrictRedis(host=self.redis_host, port=self.redis_port,
-                                         socket_timeout=5, socket_connect_timeout=5)
+                                         socket_timeout=None, socket_connect_timeout=5, socket_keepalive=True)
         self.pub = self.re.pubsub()
         self.pub.subscribe(self.physical_pub_channel)
         self.pub.subscribe(self.overview_pub_channel)
