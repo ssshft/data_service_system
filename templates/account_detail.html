@@ -3,17 +3,20 @@
 
 <script type="text/javascript" language="javascript" src="{{ url_for('static', filename = 'jquery/jquery.js') }}"></script>
 <script type="text/javascript" language="javascript" src="{{ url_for('static', filename = 'bootstrap/js/bootstrap.min.js') }}"></script>
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'bootstrap/css/bootstrap.min.css') }}"></link>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'bootstrap/css/bootstrap.min.css') }}" data-page-node-id="quAKJmGHdLFfrQF4KQ7WW8"></link>
 <script type="text/javascript" language="javascript" src="{{ url_for('static', filename = 'datatables/datatables.min.js') }}"></script>
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'datatables/datatables.min.css') }}"></link>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'datatables/datatables.min.css') }}" data-page-node-id="KOnE5T6ZZFAfhk8fBMHVp2"></link>
 <script type="text/javascript" language="javascript" src="{{ url_for('static', filename = 'socketio/socket.io.min.js') }}"></script>
 <script type="text/javascript" language="javascript" src="{{ url_for('static', filename = 'js/utility.js') }}"></script>
-<link href="{{ url_for('static', filename = 'bootstrap/datetimepicker/css/bootstrap-datetimepicker.min.css') }}" rel="stylesheet" media="screen">
+<link href="{{ url_for('static', filename = 'bootstrap/datetimepicker/css/bootstrap-datetimepicker.min.css') }}" rel="stylesheet" media="screen" data-page-node-id="QSvKkuh86elrTTybnRiuPj">
 <script type="text/javascript" language="javascript" src="{{ url_for('static', filename = 'bootstrap/datetimepicker/js/bootstrap-datetimepicker.js') }}" charset="UTF-8"></script>
 <script type="text/javascript" language="javascript" src="{{ url_for('static', filename = 'bootstrap/datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js') }}" charset="UTF-8"></script>
 <script type="text/javascript" language="javascript" src="{{ url_for('static', filename = 'echarts/echarts.min.js') }}"></script>
 <script type="text/javascript" language="javascript" class="init">
     var netValueChart = null;
+    // one-shot guard so a payload/field-name mismatch is reported once instead of
+    // every 10s push
+    var detailKeyWarned = false;
 
     $(document).ready(function() {
         InitTableConfig();
@@ -37,7 +40,19 @@
                 var accounts = item.list;
                 for (var k in accounts) {
                     account = accounts[k];
-                    var accId = Number(account.customer_id);
+                    // NOTE: the detail payload (type 1) identifies the account with
+                    // `account_id` -- see AccountItem::GetDetail() ->
+                    // detailV.AddMember("account_id", accountId, allocator).
+                    // The overview payload (type 4) uses PascalCase `AccountID`
+                    // (AccountItem::GetPreview()); the two builders are not consistent.
+                    // This line used to read a `customer_id` field that no producer
+                    // emits, so Number(undefined) === NaN and the comparison below never
+                    // matched -> the page stayed empty even though data arrived.
+                    var accId = Number(account.account_id);
+                    if (account.account_id === undefined && !detailKeyWarned) {
+                        detailKeyWarned = true;
+                        console.warn('account_info_detail: payload item has no account_id, keys =', Object.keys(account));
+                    }
                     if (accId === viewedAccountId) {
                         touchLastUpdated('#connStatus');
 
@@ -591,173 +606,173 @@ function renderNetValueChart(rows) {
 {% endblock %}
 
 {% block content %}
-<input type="hidden" id="accountId" value="{{ account_id }}">
+<input type="hidden" id="accountId" value="{{ account_id }}" data-page-node-id="P3djZD8ZB5c488bHKeguUQ">
 
-<div class="page-header">
-    <div>
-        <a class="back-link" href="/account_monitor">&larr; 返回账户列表</a>
-        <h4 class="mt-1">账户详情 <small class="text-muted" style="font-size: 1rem; font-weight: 400;">#{{ account_id }}</small></h4>
+<div class="page-header" data-page-node-id="P5e760rjFyWcM84euOxZPS">
+    <div data-page-node-id="eXLsN3HEd8ofHZzUnHAFYx">
+        <a class="back-link" href="/account_monitor" data-page-node-id="39xJSYRat0O6OCWxT0ryFN">&larr; 返回账户列表</a>
+        <h4 class="mt-1" data-page-node-id="52ZcpkvPUG798h1yfXsVOP">账户详情 <small class="text-muted" style="font-size: 1rem; font-weight: 400;" data-page-node-id="GFbr4JvtyxcIKTdmFZS1CS">#{{ account_id }}</small></h4>
     </div>
-    <div id="connStatus" class="conn-status is-offline">
-        <span class="conn-dot"></span>
-        <span class="conn-label">连接中…</span>
-        <span class="conn-updated"></span>
+    <div id="connStatus" class="conn-status is-offline" data-page-node-id="KHMr7MgQPdcVIjxYcJ5f2l">
+        <span class="conn-dot" data-page-node-id="FJtFIDgOd5jG5XaTjoTyu9"></span>
+        <span class="conn-label" data-page-node-id="r6EJrrDocFWXR9CALlyvPW">连接中…</span>
+        <span class="conn-updated" data-page-node-id="CmS6PtpEZXEeGChcMU2yCE"></span>
     </div>
 </div>
 
-<div class="detail-header">
-    <div class="row">
-        <div class="col-6 col-md-2 mb-2">
-            <span class="detail-field-label">产品名称</span>
-            <div class="detail-field-value" id="fieldProductName">--</div>
+<div class="detail-header" data-page-node-id="4MFdTEdRTNcNnrJOyyoXGI">
+    <div class="row" data-page-node-id="xDLmfGLZEQRvuUG4gfbg1z">
+        <div class="col-6 col-md-2 mb-2" data-page-node-id="UNPw3rttI94HC22fpZPA9Q">
+            <span class="detail-field-label" data-page-node-id="h6ACcrMgb2OOGMHOLXaBd5">产品名称</span>
+            <div class="detail-field-value" id="fieldProductName" data-page-node-id="VWkXwC7U4FeZY0GbzMtjvj">--</div>
         </div>
-        <div class="col-6 col-md-2 mb-2">
-            <span class="detail-field-label">账户ID</span>
-            <div class="detail-field-value" id="fieldAccountId">--</div>
+        <div class="col-6 col-md-2 mb-2" data-page-node-id="DENzF1l34QT9bwD3QbrXcR">
+            <span class="detail-field-label" data-page-node-id="oc6i3hANHo4FJcV27OPjB7">账户ID</span>
+            <div class="detail-field-value" id="fieldAccountId" data-page-node-id="98TClDJZO8yzheyZydtTsT">--</div>
         </div>
-        <div class="col-6 col-md-2 mb-2">
-            <span class="detail-field-label">基础资产</span>
-            <div class="detail-field-value" id="fieldBaseAsset">--</div>
+        <div class="col-6 col-md-2 mb-2" data-page-node-id="L9otNmoM0bXQNX0PiVA2L4">
+            <span class="detail-field-label" data-page-node-id="VbNxzm1JAiGPg9JbZ1PuUk">基础资产</span>
+            <div class="detail-field-value" id="fieldBaseAsset" data-page-node-id="GiiuZzHke8FHp6lABHB5Ok">--</div>
         </div>
-        <div class="col-6 col-md-2 mb-2">
-            <span class="detail-field-label">数据时间</span>
-            <div class="detail-field-value" id="fieldTime">--</div>
+        <div class="col-6 col-md-2 mb-2" data-page-node-id="QhZ0gEphrktzw3DZWdvn9F">
+            <span class="detail-field-label" data-page-node-id="3I9wOVXS2tW5DrayIC2GTF">数据时间</span>
+            <div class="detail-field-value" id="fieldTime" data-page-node-id="3ojGGVePXH3qMFEzYNH4co">--</div>
         </div>
     </div>
 </div>
 
-<div class="stat-row">
-    <div class="stat-card">
-        <span class="stat-label">更新时间</span>
-        <div class="stat-value" id="fieldUpdateTime" style="font-size: 1rem;">-- / --</div>
+<div class="stat-row" data-page-node-id="FPuJQbIueIdDrQ0bogE3LH">
+    <div class="stat-card" data-page-node-id="Bpm9j1lGvMdJ8wKIbAkaW0">
+        <span class="stat-label" data-page-node-id="yGLoIO3WQngC47XmulBazg">更新时间</span>
+        <div class="stat-value" id="fieldUpdateTime" style="font-size: 1rem;" data-page-node-id="AjMnYqkstZhYsuEAX1d5kc">-- / --</div>
     </div>
-    <div class="stat-card">
-        <span class="stat-label">净值 NetValue</span>
-        <div class="stat-value" id="fieldNetValue">-- / --</div>
+    <div class="stat-card" data-page-node-id="rVRrNyYcwnGR0umCM7t7dz">
+        <span class="stat-label" data-page-node-id="6tTYlVEpEYI2IKiGZ70OJT">净值 NetValue</span>
+        <div class="stat-value" id="fieldNetValue" data-page-node-id="1kXmuri8j425xZPDKxGpiG">-- / --</div>
     </div>
-    <div class="stat-card">
-        <span class="stat-label">净值增长率</span>
-        <div class="stat-value" id="fieldNetValueGrowthRate">-- / --</div>
+    <div class="stat-card" data-page-node-id="8HtwJ6YSCJLXlEEzHB8Zde">
+        <span class="stat-label" data-page-node-id="SB7AAQjiZkpPuXIXT8GGDX">净值增长率</span>
+        <div class="stat-value" id="fieldNetValueGrowthRate" data-page-node-id="N1SXFS6p41iekVGEFAnQgm">-- / --</div>
     </div>
-    <div class="stat-card">
-        <span class="stat-label">最大可借比例</span>
-        <div class="stat-value" id="fieldMaxValueToLoanRatio">-- / --</div>
+    <div class="stat-card" data-page-node-id="XwGVrRR8dUoVqUBDWvvRjq">
+        <span class="stat-label" data-page-node-id="ccIMILSgoPf0uh6A4qvxeF">最大可借比例</span>
+        <div class="stat-value" id="fieldMaxValueToLoanRatio" data-page-node-id="y3xMHiylPABrd4VLmecJOg">-- / --</div>
     </div>
-    <div class="stat-card">
-        <span class="stat-label">实际最大杠杆</span>
-        <div class="stat-value" id="fieldMaxRealLeverage">-- / --</div>
+    <div class="stat-card" data-page-node-id="0EB9s26Thdn2ckaCZkCG4f">
+        <span class="stat-label" data-page-node-id="RMEWR7cmBkv7Y5rwbgPTm8">实际最大杠杆</span>
+        <div class="stat-value" id="fieldMaxRealLeverage" data-page-node-id="v46Hf5pBoV62jZYjpSzrXa">-- / --</div>
     </div>
-    <div class="stat-card">
-        <span class="stat-label">风险敞口 RiskExposure</span>
-        <div class="stat-value" id="fieldRiskExposure">-- / --</div>
+    <div class="stat-card" data-page-node-id="k4nA2I06AFl8O3wgYind9B">
+        <span class="stat-label" data-page-node-id="uP7ijHq5XJSGi0KDROaIm9">风险敞口 RiskExposure</span>
+        <div class="stat-value" id="fieldRiskExposure" data-page-node-id="qs7SazXeGCw5LGbVIGfN55">-- / --</div>
     </div>
-    <div class="stat-card">
-        <span class="stat-label">在途订单价值</span>
-        <div class="stat-value" id="fieldUnderwayOrderValue">-- / --</div>
+    <div class="stat-card" data-page-node-id="cOKLJkZ1hc8AwUqKdHEtMb">
+        <span class="stat-label" data-page-node-id="c7SBKoZ0Qpafi9Y8Xpu50a">在途订单价值</span>
+        <div class="stat-value" id="fieldUnderwayOrderValue" data-page-node-id="W3CRFljvfxdjhF9vudDnaT">-- / --</div>
     </div>
-    <div class="stat-card">
-        <span class="stat-label">风控校验 VerifyRisk</span>
-        <div class="stat-value" id="fieldVerifyRisk">--</div>
+    <div class="stat-card" data-page-node-id="L0AJaB6By6y4qBhiGcMusZ">
+        <span class="stat-label" data-page-node-id="6qH0AH7FcSTNQPkMdFpYp4">风控校验 VerifyRisk</span>
+        <div class="stat-value" id="fieldVerifyRisk" data-page-node-id="mIwOKkWgfQpKPoRlEVraDD">--</div>
     </div>
-    <div class="stat-card">
-        <span class="stat-label">占用率 Utilization</span>
-        <div class="stat-value" id="fieldUtilization">--</div>
-        <div class="util-bar-track"><div class="util-bar-fill" id="fieldUtilizationBar" style="width: 0%;"></div></div>
+    <div class="stat-card" data-page-node-id="aHGOYpMfduYRBmyH50rAId">
+        <span class="stat-label" data-page-node-id="AB21VtnFNaH2gLGvnUNxzN">占用率 Utilization</span>
+        <div class="stat-value" id="fieldUtilization" data-page-node-id="CCaoA2rpALBIt2yrcY3j8b">--</div>
+        <div class="util-bar-track" data-page-node-id="EAesvEkP7pJKxCLHYDFTfO"><div class="util-bar-fill" id="fieldUtilizationBar" style="width: 0%;" data-page-node-id="0tNrKE9GpBbkRP6NPX0fR3"></div></div>
     </div>
 </div>
 
-<ul class="nav nav-tabs section-tabs">
-    <li class="nav-item">
-    <a class="nav-link active" aria-current="page" href="#netValueInfo" data-toggle="tab">净值走势</a>
+<ul class="nav nav-tabs section-tabs" data-page-node-id="9OiK8U78UOnwjT7MXBRGar">
+    <li class="nav-item" data-page-node-id="5D6e3x4CpGhUin5c9eqSE5">
+    <a class="nav-link active" aria-current="page" href="#netValueInfo" data-toggle="tab" data-page-node-id="lYDfVf8uDNv37E5dkipSyN">净值走势</a>
     </li>
-    <li class="nav-item">
-    <a class="nav-link" href="#exposureInfo" data-toggle="tab">Exposure</a>
+    <li class="nav-item" data-page-node-id="InqWZgWTwlyPHtUsspIuyd">
+    <a class="nav-link" href="#exposureInfo" data-toggle="tab" data-page-node-id="H5lPeA08Xrnw63zLW4iJfJ">Exposure</a>
     </li>
-    <li class="nav-item">
-    <a class="nav-link" href="#totalAssetInfo" data-toggle="tab">TotalAsset</a>
+    <li class="nav-item" data-page-node-id="Ij46GeWLBfAyJKKv3q08lC">
+    <a class="nav-link" href="#totalAssetInfo" data-toggle="tab" data-page-node-id="4xDx3FyFvaEqI0fmAWxxNq">TotalAsset</a>
     </li>
-    <li class="nav-item">
-    <a class="nav-link" href="#spotAssetInfo" data-toggle="tab">SpotAsset</a>
+    <li class="nav-item" data-page-node-id="ZNCyTMNk0HgenTNtVMMyGv">
+    <a class="nav-link" href="#spotAssetInfo" data-toggle="tab" data-page-node-id="AAYaXyWioCcnUvwnmGeO82">SpotAsset</a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#ufutureAssetInfo" data-toggle="tab">UfutureAsset</a>
+    <li class="nav-item" data-page-node-id="Ncnp7F3KTQdSeyOvnfle6C">
+        <a class="nav-link" href="#ufutureAssetInfo" data-toggle="tab" data-page-node-id="uqg0z7UVo9F4FATQcZQyJ7">UfutureAsset</a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#ufuturePositionInfo" data-toggle="tab">UfuturePosition</a>
+    <li class="nav-item" data-page-node-id="OyDPjUsyPCidZpEit7vHec">
+        <a class="nav-link" href="#ufuturePositionInfo" data-toggle="tab" data-page-node-id="BrfBwXKufkCEba3rrWIFGB">UfuturePosition</a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#perpetualAssetInfo" data-toggle="tab">PerpetualAsset</a>
+    <li class="nav-item" data-page-node-id="YZTRKcL5luzXz44cJ8qVsp">
+        <a class="nav-link" href="#perpetualAssetInfo" data-toggle="tab" data-page-node-id="RbRd8vshsxfMsD6BhNroAu">PerpetualAsset</a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#perpetualPositionInfo" data-toggle="tab">PerpetualPosition</a>
+    <li class="nav-item" data-page-node-id="QAFpEZ4BcuVb01vk5ICk4E">
+        <a class="nav-link" href="#perpetualPositionInfo" data-toggle="tab" data-page-node-id="EAAkgJeAFGDGBaCLOE84FX">PerpetualPosition</a>
     </li>
 </ul>
 
-<div class="tab-content">
-    <div class="tab-pane active" id="netValueInfo">
-        <div class="panel-card">
-            <div class="row align-items-end mb-3">
-                <div class="col-auto">
-                    <label class="control-label d-block mb-1" style="font-size: .8rem; color: #868e96;">开始日期</label>
-                    <div class="input-group date" id="form_net_value_start_date">
-                        <input class="form-control" size="10" type="text" id="netValueStartDate" readonly>
-                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+<div class="tab-content" data-page-node-id="EeDwAyRmtRhNOyNpK9F6lL">
+    <div class="tab-pane active" id="netValueInfo" data-page-node-id="UF02jqjQzGtkvB4fl6P1Mz">
+        <div class="panel-card" data-page-node-id="dfjoIooGcY4Jmzhmt5ZCHu">
+            <div class="row align-items-end mb-3" data-page-node-id="F2det6wJFSsQR94N77oArH">
+                <div class="col-auto" data-page-node-id="g47YoBG8zZ8PAF9UGma8cZ">
+                    <label class="control-label d-block mb-1" style="font-size: .8rem; color: #868e96;" data-page-node-id="snSjv6UDkmN5DJVmpWpRqe">开始日期</label>
+                    <div class="input-group date" id="form_net_value_start_date" data-page-node-id="aZCxzTNg3n9Fcc4Y4PO41H">
+                        <input class="form-control" size="10" type="text" id="netValueStartDate" readonly data-page-node-id="dNae0roE3tesAeUTLW1DNA">
+                        <span class="input-group-addon" data-page-node-id="udnUI0Ci8SYOk2Vwi1n2y4"><span class="glyphicon glyphicon-calendar" data-page-node-id="loiqb91FqGsGTk74pYw75c"></span></span>
                     </div>
                 </div>
-                <div class="col-auto">
-                    <label class="control-label d-block mb-1" style="font-size: .8rem; color: #868e96;">结束日期</label>
-                    <div class="input-group date" id="form_net_value_end_date">
-                        <input class="form-control" size="10" type="text" id="netValueEndDate" readonly>
-                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                <div class="col-auto" data-page-node-id="0ujL2xZRbylTtPV6JM5hUv">
+                    <label class="control-label d-block mb-1" style="font-size: .8rem; color: #868e96;" data-page-node-id="toWYCV9cL5QOFUTgVEpVLe">结束日期</label>
+                    <div class="input-group date" id="form_net_value_end_date" data-page-node-id="6jnAeZyJa6HIDggf3CjjMp">
+                        <input class="form-control" size="10" type="text" id="netValueEndDate" readonly data-page-node-id="MIH2VKr5lqf1ZCCESjhDH6">
+                        <span class="input-group-addon" data-page-node-id="3ozLHN8apQfhBCHvOAW8dt"><span class="glyphicon glyphicon-calendar" data-page-node-id="VDNVBXboZQfSzHhDNRO5sn"></span></span>
                     </div>
                 </div>
-                <div class="col-auto">
-                    <button onclick="loadNetValueChart()" class="btn btn-sm btn-outline-primary">查询</button>
+                <div class="col-auto" data-page-node-id="ROq9XfzhMh2VYOGJVcQWnT">
+                    <button onclick="loadNetValueChart()" class="btn btn-sm btn-outline-primary" data-page-node-id="yaadCHH3KYMTrbeVWIWoBI">查询</button>
                 </div>
             </div>
-            <div id="netValueChart" style="width: 100%; height: 340px;"></div>
+            <div id="netValueChart" style="width: 100%; height: 340px;" data-page-node-id="gC5OgMfxsijKzMkwlpttYr"></div>
         </div>
     </div>
 
-    <div class="tab-pane" id="exposureInfo">
-        <div class="panel-card">
-            <table id="exposure_form" class="display table table-hover" style="width: 100%;"></table>
+    <div class="tab-pane" id="exposureInfo" data-page-node-id="EGzCqxjeiaouI3hRoowjqz">
+        <div class="panel-card" data-page-node-id="qyCyP5sJAEPs6jiwMlY6oH">
+            <table id="exposure_form" class="display table table-hover" style="width: 100%;" data-page-node-id="Em3iHWpCWiykPflfyu2zxe"></table>
         </div>
     </div>
 
-    <div class="tab-pane" id="totalAssetInfo">
-        <div class="panel-card">
-            <table id="total_asset" class="display table table-hover" style="width: 100%;"></table>
+    <div class="tab-pane" id="totalAssetInfo" data-page-node-id="SOMwu8wI1MFFW5mmUIv0b5">
+        <div class="panel-card" data-page-node-id="pDsHvFXK2JaFGKBivP3eee">
+            <table id="total_asset" class="display table table-hover" style="width: 100%;" data-page-node-id="nLT8E8oyLridtFVZRWrc1Q"></table>
         </div>
     </div>
 
-    <div class="tab-pane" id="spotAssetInfo">
-        <div class="panel-card">
-            <table id="spot_asset" class="display table table-hover" style="width: 100%;"></table>
+    <div class="tab-pane" id="spotAssetInfo" data-page-node-id="PW2RwgjSUn0jQakbTOEGew">
+        <div class="panel-card" data-page-node-id="ofTuCdDKvsDbyB1i2XnXcD">
+            <table id="spot_asset" class="display table table-hover" style="width: 100%;" data-page-node-id="b5JhBNqapG4vGy13y62WEK"></table>
         </div>
     </div>
 
-    <div class="tab-pane" id="ufutureAssetInfo">
-        <div class="panel-card">
-            <table id="ufuture_asset" class="display table table-hover" style="width: 100%;"></table>
+    <div class="tab-pane" id="ufutureAssetInfo" data-page-node-id="8rowMvXhX8KAIolFbTnY6q">
+        <div class="panel-card" data-page-node-id="I0kVAob01pHfReLDyvgi1o">
+            <table id="ufuture_asset" class="display table table-hover" style="width: 100%;" data-page-node-id="ObGgeVkotvWJcP15sXrGtd"></table>
         </div>
     </div>
 
-    <div class="tab-pane" id="ufuturePositionInfo">
-        <div class="panel-card">
-            <table id="ufuture_position" class="display table table-hover" style="width: 100%;"></table>
+    <div class="tab-pane" id="ufuturePositionInfo" data-page-node-id="A0KEhybJDV2WeBAVjQFciD">
+        <div class="panel-card" data-page-node-id="7E8dWvyt5qLA0ba4IoORt4">
+            <table id="ufuture_position" class="display table table-hover" style="width: 100%;" data-page-node-id="Xw0W3b09wIdfGlzYpBHUDN"></table>
         </div>
     </div>
 
-    <div class="tab-pane" id="perpetualAssetInfo">
-        <div class="panel-card">
-            <table id="perpetual_asset" class="display table table-hover" style="width: 100%;"></table>
+    <div class="tab-pane" id="perpetualAssetInfo" data-page-node-id="5x489uukMqKbtdUTWWRnjq">
+        <div class="panel-card" data-page-node-id="4gC91Qg2bw4vQMdbF1Ys9t">
+            <table id="perpetual_asset" class="display table table-hover" style="width: 100%;" data-page-node-id="suNuByftVrPgsEUtJf0ERB"></table>
         </div>
     </div>
 
-    <div class="tab-pane" id="perpetualPositionInfo">
-        <div class="panel-card">
-            <table id="perpetual_position" class="display table table-hover" style="width: 100%;"></table>
+    <div class="tab-pane" id="perpetualPositionInfo" data-page-node-id="v1Jx821YHrHpljZ4lGPev0">
+        <div class="panel-card" data-page-node-id="8KQViBrQ1y41SjOPTXJwxV">
+            <table id="perpetual_position" class="display table table-hover" style="width: 100%;" data-page-node-id="JbAHB1e5IBkmCfqAfFCNR1"></table>
         </div>
     </div>
 
